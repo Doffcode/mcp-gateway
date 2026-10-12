@@ -26,7 +26,7 @@ Setup on a fresh machine: `git clone … && cd mcp-gateway && scripts/setup.sh &
 - [x] Fixtures: weather (clean/poisoned), filesystem (sandboxed read_file), rugpull (control file clean/bump/evil), benign
 - [x] Proxy + L1 + `gateway pin approve|list` + ladder (pure fn)
 - [x] Demo 1: `uv run pytest -q` → 6 passed; `scripts/demo1_rugpull.sh` shows block + diff
-- [ ] Hard-negative trigger list (frozen, independent source). NEEDS the source decision from Shivansh
+- [x] Hard-negative trigger list frozen: MITRE ATT&CK v19.2 (user decision), 204 words, `data/hard_negative_triggers.txt`
 - [ ] L2 taxonomy + analyzer, Demo 2 test
 - [ ] Day 2: MCPTox ingest/split, Demo 3, Demo 4
 
