@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+# runtime state (pin store, logs) is per-machine
+var/
+# per-machine settings (Ollama host, model)
+config.local.yaml
+# MCPTox raw data: no explicit upstream license, fetched by scripts/fetch_mcptox.sh, never committed
+data/raw/

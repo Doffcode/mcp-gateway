@@ -1,0 +1,5 @@
+# Shared gateway config (committed). Per-machine overrides go in config.local.yaml (gitignored).
+k: 2                       # L2-flagged tools in one server before the whole server is quarantined
+pin_store: var/pins.json   # L1 TOFU pins (runtime state, per machine)
+log_file: var/gateway.log  # structured JSON log
+taxonomy_dir: taxonomy     # L2 pattern lists (YAML)

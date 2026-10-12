@@ -1,0 +1,1 @@
+"""MCP Metadata Integrity Gateway."""
