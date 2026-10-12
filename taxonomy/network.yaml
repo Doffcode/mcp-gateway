@@ -1,0 +1,14 @@
+category: network
+actions:
+  - {re: '\b(upload|send|post|transmit|forward|sync|backup|push|export|transfer|stream|share|relay|exfiltrat\w*|leak)\b', source: cisco-mcp-scanner@5d147dc/data_exfiltration}
+  - {re: '\b(fetch|download|request|visit|navigate|connect|ping|report)\b', source: mcptox-train}
+  - {re: '\b(curl|wget|scp|rsync|ftp|sftp|nc|netcat)\b', source: cisco-mcp-scanner@5d147dc/credential_harvesting}
+targets:
+  - {re: '\b(https?|wss?|ftp)://', source: cisco-mcp-scanner@5d147dc/data_exfiltration}
+  - {re: '\b(external|remote) (endpoint|server|api|service|host)s?\b', source: cisco-mcp-scanner@5d147dc/data_exfiltration}
+  - {re: '\b(attacker|evil|malware|collect|exfil|steal|hack|malicious|c2)[\w-]*\.(com|net|org|io|xyz)\b', source: cisco-mcp-scanner@5d147dc/data_exfiltration}
+  - {re: '\b(webhooks?|urls?|endpoints?|ip address(es)?|sockets?)\b', source: mcptox-train}
+  - {re: 'https?://[^\s]+\.(xyz|tk|ml|ga|cf)', source: qsag-core@0.2.2}
+schema_hints:
+  - {re: '^(url|uri|urls|link|endpoint|host|hostname|domain|webhook|ip|port|address|base_url)$|(url|uri|endpoint|webhook)', source: mcp-fixture-hygiene}
+  - {re: '\b(urls?|uri|https?|website|web page|endpoint|webhook|hostname|domain)\b', source: mcp-fixture-hygiene}

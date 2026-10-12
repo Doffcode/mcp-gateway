@@ -1,0 +1,15 @@
+category: subprocess
+actions:
+  - {re: '\b(run|runs|execute|executes|exec|spawn|invoke|evaluate|eval|launch)\b', source: mcptox-train}
+  - {re: '(\beval\s*\(|os\.system\s*\(|\bsubprocess\b)', source: qsag-core@0.2.2}
+  - {re: '\b(append|prepend|inject|insert)\b', source: mcptox-train}
+targets:
+  - {re: '\b(commands?|shell|bash|terminal|powershell|cmd|scripts?|subprocess|processes)\b', source: mcptox-train}
+  - {re: '(/bin/(ba)?sh|bash\s+-i|sh\s+-i|nc\s+-e|/dev/tcp)', source: cisco-mcp-scanner@5d147dc/command_injection}
+  - {re: '(&&|\|\||\$\(|`[^`]+`)\s*\w', source: mcptox-train}
+  - {re: '\b(curl|wget)\s+(https?://|ftp://|-[oO]\b)', source: cisco-mcp-scanner@5d147dc/command_injection}
+  - {re: '\b(rm\s+-rf?|chmod\s+(777|\+x|[ug]?\+s)|sudo|kill\s+-9)\b', source: cisco-mcp-scanner@5d147dc/system_manipulation}
+  - {re: '\b(javascript|js code|python code|code snippet|puppeteer_evaluate|child_process)\b', source: mcptox-train}
+schema_hints:
+  - {re: '^(command|cmd|script|shell|code|args|argv|program|executable|expression|js|javascript)$|(command|script|shell)', source: mcp-fixture-hygiene}
+  - {re: '\b(shell )?commands?\b|\bscripts?\b|\bcode to (run|execute|evaluate)\b', source: mcp-fixture-hygiene}

@@ -1,0 +1,89 @@
+{
+  "seed": 20261012,
+  "train_frac_target": 0.6,
+  "source": "MCPTox-Benchmark@f85189f9 response_all.json (valid cases only)",
+  "train_servers": [
+    "AWSKnowledgeBase",
+    "AmapMap",
+    "Apify",
+    "BaiduMap",
+    "BraveSearch",
+    "Claude Post",
+    "Codacy",
+    "Commander",
+    "DoDo Payments",
+    "E2B",
+    "Email",
+    "EverArt",
+    "Everything",
+    "FileSystem",
+    "Financial Dataset",
+    "Flomo",
+    "Git",
+    "Github",
+    "GoogleDrive",
+    "Gyazo",
+    "HyperBrowser",
+    "KeywordsPeopleUse",
+    "Memory",
+    "Puppeteer",
+    "SQLite",
+    "Sentry",
+    "Sequential Thinking",
+    "Tavily",
+    "wechat"
+  ],
+  "heldout_servers": [
+    "12306-mcp",
+    "AdFin",
+    "AgentQL",
+    "AlphaVantage",
+    "ClickHouse",
+    "DumplingAI",
+    "Fetch",
+    "Gitlab",
+    "Google Maps",
+    "OP.GG",
+    "Prisma",
+    "QuickChart",
+    "Redis",
+    "Slack",
+    "gNucleus Text to CAD",
+    "mcp-simple-arxiv"
+  ],
+  "n_cases": {
+    "train": 814,
+    "heldout": 498
+  },
+  "n_authentic_tools": {
+    "train": 225,
+    "heldout": 128
+  },
+  "risk_counts": {
+    "train": {
+      "Code Injection": 54,
+      "Credential Leakage": 89,
+      "Data Tampering": 84,
+      "Financial Loss": 14,
+      "Information Manipulation": 155,
+      "Infrastructure Damage": 63,
+      "Instruction Tampering": 30,
+      "Message Hijacking": 29,
+      "Other": 4,
+      "Privacy Leakage": 186,
+      "Service Disruption": 106
+    },
+    "heldout": {
+      "Code Injection": 9,
+      "Credential Leakage": 26,
+      "Data Tampering": 33,
+      "Financial Loss": 41,
+      "Information Manipulation": 114,
+      "Infrastructure Damage": 59,
+      "Instruction Tampering": 27,
+      "Message Hijacking": 12,
+      "Privacy Leakage": 87,
+      "Service Disruption": 90
+    }
+  }
+}

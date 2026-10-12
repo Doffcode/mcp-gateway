@@ -1,0 +1,10 @@
+category: email
+actions:
+  - {re: '\b(send|forward|bcc|cc|reply|deliver|mail|notify|alert)\b', source: mcptox-train}
+  - {re: '\b(sends?|forward(s|ed|ing)?)\b', source: cisco-mcp-scanner@5d147dc/data_exfiltration}
+targets:
+  - {re: '\b(e-?mails?|inbox|mailbox|smtp|recipients?|send ?mail|send ?bulk ?mail)\b', source: mcptox-train}
+  - {re: '\b[\w.+-]+@[\w-]+\.[\w.]+\b', source: mcptox-train}
+schema_hints:
+  - {re: '^(to|cc|bcc|recipients?|email|emails|subject|body|from|sender|reply_to|mail)$|(email|recipient|mail)', source: mcp-fixture-hygiene}
+  - {re: '\b(e-?mail|recipients?|subject line|mailbox)\b', source: mcp-fixture-hygiene}

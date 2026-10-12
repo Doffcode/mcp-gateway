@@ -1,0 +1,16 @@
+category: filesystem
+actions:
+  - {re: '\b(open|read|cat|load|copy|download|extract|dump)\b', source: cisco-mcp-scanner@5d147dc/credential_harvesting}
+  - {re: '\b(write|overwrite|delete|remove|move|rename|append|modify|edit|create|save|list)\b', source: mcptox-train}
+  - {re: '\b(rm|chmod|chown|mv|cp|find|grep)\b', source: cisco-mcp-scanner@5d147dc/credential_harvesting}
+targets:
+  - {re: '\bfiles?\b', source: cisco-mcp-scanner@5d147dc/credential_harvesting}
+  - {re: '\b(director(y|ies)|folders?|file ?system)\b', source: mcptox-train}
+  - {re: '(~|\$HOME)[/\\]', source: qsag-core@0.2.2}
+  - {re: '[/\\]\.(ssh|aws|kube)[/\\]', source: cisco-mcp-scanner@5d147dc/credential_harvesting}
+  - {re: '(/etc/(passwd|shadow|hosts)|/(tmp|var|root|home)/)', source: cisco-mcp-scanner@5d147dc/system_manipulation}
+  - {re: '\b[\w-]+\.(txt|log|json|ini|env|pem|key|conf|cfg|ya?ml|csv|db|sqlite)\b', source: mcptox-train}
+  - {re: '\ballowed ?directories\b', source: mcptox-train}
+schema_hints:
+  - {re: '^(file_?)?paths?$|^(file|filename|filepath|file_name|dir|directory|folder|source|destination|files)$', source: mcp-fixture-hygiene}
+  - {re: '\b(file|director(y|ies)|folder) ?(path|name)?\b', source: mcp-fixture-hygiene}
