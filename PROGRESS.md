@@ -54,7 +54,6 @@ Setup on a fresh machine: `git clone … && cd mcp-gateway && scripts/setup.sh &
 `git pull && scripts/setup.sh && uv run pytest -q`, then build `agent/loop.py` (Ollama tool-calling over MCP),
 run 10x gateway OFF / 10x ON against poisoned weather + filesystem + canary, then the Demo 4 runner.
 
-## Proposed CLAUDE.md edits (not applied; owner decides)
-- Timeline: 2-day sprint; L3 deferred to post-review; bootstrap CIs (case-level, single run) allowed.
-- Note mcp SDK v2 and the two-machine workflow (PROGRESS.md handoff, setup.sh).
-- Note qsag-core version pin (0.2.2) and that its pattern count is not 26 in that release.
+## CLAUDE.md edits: APPLIED 2026-10-13 (approved by owner as written)
+- 2-day timeline, L3 deferred, bootstrap CIs allowed, mcp v2 note, two-machine workflow section,
+  qsag-core 0.2.2 pin, MCPTox counts, split recorded. 60/40 split confirmed by owner.
