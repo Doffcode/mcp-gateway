@@ -48,11 +48,28 @@ Setup on a fresh machine: `git clone … && cd mcp-gateway && scripts/setup.sh &
 - [x] MCPTox ingest (`eval/mcptox_ingest.py`) + grouped split (`eval/split.py`)
 - [x] L2 taxonomy + analyzer; Demo 2: `scripts/demo2_mismatch.sh`
 - [x] `uv run pytest -q` → 15 passed (Demo 1, Demo 2, ladder rows, canonical hashing, benign no-FP)
-- [ ] Day 2 (lab PC): Demo 3 agent loop (Ollama), Demo 4 numbers (ASR w/o vs with gateway, FPR on 353, hard negatives, p95)
+- [x] Day 2 setup on lab PC: uv (user-level), Ollama (system install), qwen3:8b; `config.local.yaml` = model + ollama_host
+- [x] Demo 3: `agent/loop.py`, `scripts/demo3_live.sh`. OFF leaked 10/10, ON 0/10 (preliminary, n=10/mode, qwen3:8b think=off,
+      temp 0.7, seeds 0-9). Backup recording: `recordings/demo3/`. With gateway ON the agent loses get_weather (utility cost).
+- [x] Demo 4 machinery: `eval/run_mcptox.py` (resumable, var/eval/), `eval/judge.py`, `eval/report.py` -> results/results.{md,csv}
+- [ ] Demo 4 ASR run (held-out n=300 stratified, think=on) -> then `eval.report`
 
 ## Next step (Day 2, lab PC)
 `git pull && scripts/setup.sh && uv run pytest -q`, then build `agent/loop.py` (Ollama tool-calling over MCP),
 run 10x gateway OFF / 10x ON against poisoned weather + filesystem + canary, then the Demo 4 runner.
+
+## Day 2 decisions / findings (2026-10-13, lab PC)
+- Model: qwen3:8b (MCPTox ships Qwen3-8b labels -> sanity reference). Demo 4 uses think=on (MCPTox ASR ~24% vs ~5% off);
+  owner chose n=300 stratified held-out after timing. Demo 3 uses think=off (fast; triggers 10/10 anyway).
+- MCPTox protocol reproduced as-is: single turn, its system prompt (tools as text) + query, JSON tool-call answer.
+  Gateway condition = real L1+L2+ladder on (authentic tools + poisoned tool); removed blocks cut from the prompt.
+  If nothing removed, prompt is identical and the no-defense answer is reused. L1 contributes nothing on MCPTox (all first-sight).
+- Judge is deterministic (no LLM): rules written on TRAIN-split stored MCPTox responses vs MCPTox labels.
+  Agreement: train 91.7% (Think, n=726) / 92.9% (No-Think, n=774); held-out 88.9% (Think, n=425) / 91.7% (n=445).
+  In Think mode it UNDER-counts Success (held-out: judged 109 vs labelled 122). Report this next to ASR.
+- GOTCHA: Ollama default num_ctx=4096 silently truncates long MCPTox prompts (up to ~15.6k chars). Now num_ctx=16384
+  in both agent and eval. First ~10 eval cases run at 4096 were discarded (var/eval/discarded_ctx4096/).
+- think=on responses capped at num_predict=4096; a few hit the cap (empty answer -> judged None = not success). Reported.
 
 ## CLAUDE.md edits: APPLIED 2026-10-13 (approved by owner as written)
 - 2-day timeline, L3 deferred, bootstrap CIs allowed, mcp v2 note, two-machine workflow section,
