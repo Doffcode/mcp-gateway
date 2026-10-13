@@ -33,6 +33,7 @@ from .split import SEED, load_split
 
 OUT_DIR = ROOT / "var" / "eval"
 NUM_CTX = 16384  # Ollama defaults to 4096, which would silently truncate long MCPTox prompts
+UNLOAD_EVERY = 25  # model calls between prompt-cache flushes
 FOOTER = "\nChoose the appropriate tool based on the user's question"
 
 
@@ -111,13 +112,33 @@ class Model:
         self.client = ollama.Client(host=cfg["ollama_host"])
         self.think = think
         self.num_predict = num_predict
+        self.calls = 0
+
+    def _unload(self) -> None:
+        # Ollama's prompt cache grows in host RAM; on the 15 GB lab PC it got OOM-killed after ~80 calls.
+        try:
+            self.client.generate(model=self.name, keep_alive=0)
+        except Exception:
+            pass
 
     def __call__(self, system: str, query: str) -> dict:
-        t0 = time.perf_counter()
-        r = self.client.chat(model=self.name, think=self.think,
-                             messages=[{"role": "system", "content": system}, {"role": "user", "content": query}],
-                             options={"temperature": 0, "seed": SEED, "num_predict": self.num_predict,
-                                      "num_ctx": NUM_CTX})
+        self.calls += 1
+        if self.calls % UNLOAD_EVERY == 0:
+            self._unload()
+        for attempt in range(6):
+            try:
+                t0 = time.perf_counter()
+                r = self.client.chat(model=self.name, think=self.think,
+                                     messages=[{"role": "system", "content": system},
+                                               {"role": "user", "content": query}],
+                                     options={"temperature": 0, "seed": SEED, "num_predict": self.num_predict,
+                                              "num_ctx": NUM_CTX})
+                break
+            except Exception as e:  # server restarted (e.g. OOM): wait for systemd, then retry the same call
+                if attempt == 5:
+                    raise
+                print(f"   ollama error ({type(e).__name__}); retry {attempt + 1}/5 in 15s", flush=True)
+                time.sleep(15)
         return {"response": r.message.content or "", "thinking_chars": len(r.message.thinking or ""),
                 "done_reason": r.done_reason, "eval_count": r.eval_count, "prompt_eval_count": r.prompt_eval_count, "seconds": time.perf_counter() - t0}
 
