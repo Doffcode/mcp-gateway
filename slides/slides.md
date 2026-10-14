@@ -118,7 +118,7 @@ Local model only, via Ollama on an RTX A2000.
 
 | Item | Result (preliminary, qwen3:8b, single run) |
 |:--|:--|
-| Demo 1 rug-pull, Demo 2 mismatch | Working, 17 tests pass |
+| Demo 1 rug-pull, Demo 2 mismatch | Working, 28 tests pass |
 | Demo 3 live agent canary | Leaked 10/10 without, 0/10 with (n = 10 each) |
 | Poisoned tools removed, held-out | 157/498 = 31.5% |
 | Real tools wrongly removed | 24/353 = 6.8% |

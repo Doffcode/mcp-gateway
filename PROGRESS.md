@@ -109,3 +109,12 @@ run 10x gateway OFF / 10x ON against poisoned weather + filesystem + canary, the
   code path on 12 seeded held-out cases (test). Example live case Slack#11: Success in both conditions (gateway miss).
 - CLAUDE.md: testing rule now allows official open-source MCP servers run locally (owner approved 2026-10-15); Demo UI section.
 - 28 tests pass. Next: L3/L4 plan; owner to enable sshd on lab PC for the laptop tunnel.
+
+## Day 4 (2026-10-14 evening): presentation laptop readied (6 GB RAM, no GPU, no model)
+- `git pull`, `scripts/setup.sh` (all extras, MCPTox sha256 OK), 28 tests pass. uvx cache warmed for mcp-server-git/time 2026.10.10.
+- Demo 1 and Demo 2 scripts pass; Demo 3 recording summary present (OFF 10/10, ON 0/10).
+- Demo UI smoke-tested: Story endpoints, recorded scene 2, rug-pull reset/CLI, L2 check, sweep (157/498, 24/353, Commander),
+  Lab connect weather+filesystem+git+time through gateway (time call works, get_weather blocked).
+- NOT on this laptop: `var/eval/mcptox_heldout_n300_think-on.jsonl` (lab PC only) -> Lab "ASR from file" and the case lab's
+  stored-result column are unavailable. No local model (live scene 2 / agent chat / case-lab B,C need the lab PC tunnel).
+- Report Kit updated (slide support); deck rebuilt `--final` -> slides/out/slides.pptx (13 slides). Backup slide test count 17 -> 28.
