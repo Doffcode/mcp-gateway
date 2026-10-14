@@ -50,3 +50,36 @@ scripts/demo4_numbers.sh     # resumes the cached eval in var/eval/, then writes
 ```
 Results are in `results/results.md` (human) and `results/results.csv` (one row per number, with n and CI).
 Everything is labelled preliminary, single run, model qwen3:8b (think on).
+
+## Gateway Studio: hands-on animated demo (you drive every step)
+```
+scripts/demo_ui.sh            # starts demo_ui.server on http://127.0.0.1:8765 and opens Chrome full-screen
+```
+**How to present.** The big green button at the top always shows the next real action ("▶ Server silently rewrites its
+description"). Click it, or press → / Space / a presentation clicker. ← goes back, 0–8 jump to a scene.
+Hands-on parts:
+- Scene 2: type the question yourself, pick **Live model** or **Recorded run (lab PC)**, then click "Send WITHOUT the
+  gateway" and "Send WITH the gateway". The top-right badge says LIVE or RECORDED with model and seed. If a live run does
+  not leak, click **↻ Run again** (next seed) or switch to the recorded run.
+- Scene 4: in the Operator terminal type `gateway pin approve rugpull convert_currency` and press Enter (the real CLI
+  runs; only `gateway pin approve|list` is accepted).
+- Scene 6: type any tool description; the L2 verdict updates as you type.
+
+Scenes: 0 title · 1 how MCP works · 2 two agents, no gateway vs gateway · 3 inside the gateway (L1 hash, L2 implied vs
+declared) · 4 rug-pull (evil / reset / bump / approve) · 5 decision ladder · 6 try to poison it · 7 MCPTox numbers from
+results/results.csv · 8 closing. Every scene calls the real gateway (`demo_ui/scenarios.py`); only scene 2 live mode
+needs Ollama. Recorded mode replays `recordings/demo3/transcripts/*.json` (lab PC, qwen3:8b), labelled as recorded.
+
+**Presentation laptop (≤ 8 GB RAM, no GPU).** `git pull && uv sync`, install Ollama, `ollama pull qwen2.5:3b`, and set
+`config.local.yaml`:
+```yaml
+model: qwen2.5:3b       # best small model in screening: leaked 4/10 with gateway OFF, 0/10 ON, ~7 s/run on CPU
+ollama_host: http://localhost:11434
+num_ctx: 4096
+num_predict: 512
+```
+Expect some live runs not to leak (screening: 4/10). Use ↻ Run again or the Recorded run; never present a recorded run as live.
+
+**Video backup.** Press A for auto-play or R to record (Chrome tab capture → WebM), or record headless with Playwright
+(`--auto-accept-this-tab-capture`, 1920×1080 viewport). Convert: `scripts/to_mp4.sh var/video/gateway-studio.webm`.
+Videos live in var/video/ (gitignored).

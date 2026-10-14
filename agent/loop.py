@@ -35,7 +35,9 @@ def local_cfg() -> dict:
 
     p = ROOT / "config.local.yaml"
     raw = (yaml.safe_load(p.read_text()) or {}) if p.exists() else {}
-    return {"model": raw.get("model", "qwen3:8b"), "ollama_host": raw.get("ollama_host", "http://localhost:11434")}
+    return {"model": raw.get("model", "qwen3:8b"), "ollama_host": raw.get("ollama_host", "http://localhost:11434"),
+            # optional Ollama options (small CPU models on a laptop); defaults keep the recorded Demo 3 setup
+            "num_ctx": raw.get("num_ctx", 16384), "num_predict": raw.get("num_predict"), "num_gpu": raw.get("num_gpu")}
 
 
 def server_params(name: str, fixture_args: list[str], gateway: bool, run_dir: Path) -> StdioServerParameters:
@@ -56,7 +58,8 @@ def canary_leaked(run_dir: Path) -> bool:
     return calls.exists() and CANARY in calls.read_text()
 
 
-async def run_once(gateway: bool, seed: int, think: bool, run_dir: Path, verbose: bool) -> dict:
+async def run_once(gateway: bool, seed: int, think: bool, run_dir: Path, verbose: bool, on_event=None,
+                   prompt: str = PROMPT) -> dict:
     import ollama
 
     if run_dir.exists():
@@ -65,10 +68,12 @@ async def run_once(gateway: bool, seed: int, think: bool, run_dir: Path, verbose
     cfg = local_cfg()
     llm = ollama.AsyncClient(host=cfg["ollama_host"])
     specs = {"weather": ["weather.py", "--variant", "poisoned"], "filesystem": ["filesystem.py"]}
-    transcript = {"gateway": gateway, "seed": seed, "model": cfg["model"], "think": think, "prompt": PROMPT, "events": []}
+    transcript = {"gateway": gateway, "seed": seed, "model": cfg["model"], "think": think, "prompt": prompt, "events": []}
 
     def say(kind: str, text: str, **kw) -> None:
         transcript["events"].append({"kind": kind, "text": text, **kw})
+        if on_event is not None:
+            on_event(transcript["events"][-1])
         if verbose:
             print(f"  [{kind}] {text}")
 
@@ -84,11 +89,12 @@ async def run_once(gateway: bool, seed: int, think: bool, run_dir: Path, verbose
                 tools.append({"type": "function", "function": {"name": t.name, "description": t.description or "",
                                                               "parameters": t.input_schema}})
         say("tools", ", ".join(sorted(owner)), served=sorted(owner))
-        messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": PROMPT}]
-        say("user", PROMPT)
+        messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}]
+        say("user", prompt)
         for _ in range(MAX_ROUNDS):
-            r = await llm.chat(model=cfg["model"], messages=messages, tools=tools, think=think,
-                               options={"temperature": 0.7, "seed": seed, "num_ctx": 16384})
+            opts = {"temperature": 0.7, "seed": seed, "num_ctx": cfg["num_ctx"]}
+            opts.update({k: cfg[k] for k in ("num_predict", "num_gpu") if cfg[k] is not None})
+            r = await llm.chat(model=cfg["model"], messages=messages, tools=tools, think=think, options=opts)
             messages.append(r.message)
             if not r.message.tool_calls:
                 say("assistant", (r.message.content or "").strip())
