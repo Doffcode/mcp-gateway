@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gateway Lab</title>
+  <link rel="stylesheet" href="/static/lab.css">
+</head>
+<body>
+  <header>
+    <div class="brand">Gateway Lab</div>
+    <nav>
+      <button data-tab="wire" class="on">Live wire</button>
+      <button data-tab="case">MCPTox case lab</button>
+      <button data-tab="sweep">Benchmark sweep</button>
+      <button data-tab="chat">Agent chat</button>
+      <a href="/" class="story">Story mode ↗</a>
+    </nav>
+    <div id="model" class="chip">model: checking…</div>
+  </header>
+
+  <!-- 1. LIVE WIRE ---------------------------------------------------------------------------------- -->
+  <main id="tab-wire" class="tab on">
+    <section class="panel setup">
+      <h2>1 · Choose real servers</h2>
+      <label class="srv"><input type="checkbox" data-kind="weather" checked> <b>weather</b> <span class="tag fx">our fixture</span><small>get_weather is poisoned</small></label>
+      <label class="srv"><input type="checkbox" data-kind="filesystem" checked> <b>filesystem</b> <span class="tag fx">our fixture</span><small>sandboxed read_file</small></label>
+      <label class="srv"><input type="checkbox" data-kind="mcptox" checked> <b>MCPTox replay</b> <span class="tag mx">benchmark data</span>
+        <select id="mx-server"></select><select id="mx-case"><option value="">no poisoned tool</option></select></label>
+      <label class="srv"><input type="checkbox" data-kind="git" checked> <b>mcp-server-git</b> <span class="tag of">official, unmodified</span><small>uvx, this repo, read-only</small></label>
+      <label class="srv"><input type="checkbox" data-kind="time" checked> <b>mcp-server-time</b> <span class="tag of">official, unmodified</span><small>uvx</small></label>
+      <h2>2 · Gateway</h2>
+      <div class="seg" id="gw-seg"><button data-v="1" class="on">In the path</button><button data-v="0">Bypassed</button></div>
+      <button id="connect" class="primary">Connect (spawn processes)</button>
+      <div id="procs" class="procs"></div>
+    </section>
+
+    <section class="panel tools">
+      <h2>What the agent receives <span class="sub" id="tools-sub"></span></h2>
+      <div id="tooltable" class="tooltable"><div class="empty">Connect to see each server's real tools/list, before and after the gateway.</div></div>
+      <div class="callbox">
+        <select id="call-tool"></select>
+        <input id="call-args" value="{}" spellcheck="false">
+        <button id="call">Call tool</button>
+        <div id="call-out" class="mono small"></div>
+      </div>
+    </section>
+
+    <section class="panel wire">
+      <h2>Wire: every JSON-RPC frame, both hops <span class="sub" id="wire-count"></span></h2>
+      <div id="wirelog" class="log"></div>
+      <h2>Gateway log <span class="sub">var/…/gateway.log (JSON lines)</span></h2>
+      <div id="gwlog" class="log short"></div>
+    </section>
+  </main>
+
+  <!-- 2. MCPTOX CASE LAB ---------------------------------------------------------------------------- -->
+  <main id="tab-case" class="tab">
+    <section class="panel setup">
+      <h2>Pick a real MCPTox case</h2>
+      <div class="row"><select id="cl-split"><option value="held-out">held-out servers</option><option value="train">train servers</option><option value="">all</option></select>
+        <select id="cl-risk"><option value="">all risk categories</option></select></div>
+      <button id="cl-random">🎲 Random case</button>
+      <div id="cl-list" class="caselist"></div>
+    </section>
+    <section class="panel">
+      <div id="cl-detail" class="empty">Choose a case on the left.</div>
+    </section>
+    <section class="panel">
+      <h2>Run it</h2>
+      <button id="cl-gw" class="primary" disabled>A · Send its tools/list through the real gateway</button>
+      <div id="cl-gw-out"></div>
+      <div class="row" style="margin-top:14px">
+        <button id="cl-run-nd" disabled>B · Model, no defense</button>
+        <button id="cl-run-gw" disabled>C · Model, with gateway</button>
+        <label class="small"><input type="checkbox" id="cl-think" checked> think (as in the n=300 run)</label>
+      </div>
+      <div id="cl-run-out"></div>
+      <div id="cl-stored"></div>
+    </section>
+  </main>
+
+  <!-- 3. SWEEP -------------------------------------------------------------------------------------- -->
+  <main id="tab-sweep" class="tab">
+    <section class="panel wide">
+      <h2>Run the gateway over the whole held-out benchmark, now <span class="sub">deterministic: no model needed</span></h2>
+      <button id="sw-run" class="primary">▶ Run sweep (498 attack cases + 353 real tools)</button>
+      <div class="progress"><div id="sw-bar"></div></div>
+      <div id="sw-status" class="mono small"></div>
+      <div class="sweepgrid">
+        <div><h3>Poisoned tool removed, by attack type</h3><div id="sw-risk"></div></div>
+        <div><h3>Result</h3><div id="sw-cards" class="cards"></div><div id="sw-fp" class="log short"></div></div>
+      </div>
+    </section>
+    <section class="panel wide">
+      <h2>Attack success rate (needs the model) <span class="sub" id="asr-src"></span></h2>
+      <div id="asr" class="cards"></div>
+      <div class="row"><button id="asr-more">▶ Run 3 more random held-out cases live</button><span id="asr-live-sub" class="small"></span></div>
+      <div id="asr-live" class="log short"></div>
+    </section>
+  </main>
+
+  <!-- 4. AGENT CHAT --------------------------------------------------------------------------------- -->
+  <main id="tab-chat" class="tab">
+    <section class="panel wide">
+      <h2>Talk to the real agent over the servers connected in “Live wire” <span class="sub" id="chat-sub"></span></h2>
+      <div class="row"><input id="chat-q" value="What's the weather in Paris right now?"><button id="chat-send" class="primary">Send</button></div>
+      <div id="chat" class="chat"></div>
+    </section>
+    <section class="panel">
+      <h2>Frames caused by this conversation</h2>
+      <div id="wirelog2" class="log"></div>
+    </section>
+  </main>
+  <script src="/static/lab.js"></script>
+</body>
+</html>

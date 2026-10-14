@@ -51,7 +51,28 @@ scripts/demo4_numbers.sh     # resumes the cached eval in var/eval/, then writes
 Results are in `results/results.md` (human) and `results/results.csv` (one row per number, with n and CI).
 Everything is labelled preliminary, single run, model qwen3:8b (think on).
 
-## Gateway Studio: hands-on animated demo (you drive every step)
+## Gateway Lab: the real thing, live (http://127.0.0.1:8765/lab)
+```
+scripts/demo_ui.sh          # opens /lab; Story mode stays at /
+```
+- **Live wire**: tick real servers. Choose from the weather/filesystem fixtures, the MCPTox replay server (any of the 45 servers,
+  optionally with a poisoned case), and the official `mcp-server-git` and `mcp-server-time` (uvx, pinned 2026.10.10). Pick gateway In the path or
+  Bypassed, then Connect. You see the spawned PIDs, every JSON-RPC frame on both hops (click a frame for raw JSON), the
+  gateway log, and per tool what the server sent vs what the agent got, with L1 hash and L2 verdict (L3/L4 lanes say "not
+  built"). "Call tool" makes a real call (a removed tool is blocked by the gateway).
+- **MCPTox case lab**: pick or 🎲 a real case. A = its tools/list through the real proxy (also shows that the benchmark
+  code path gives the same decision). B/C = the model answers live, no defense / with gateway, judged by eval/judge.py,
+  next to MCPTox's own published labels and the stored n=300 result (file + line). Live runs append to var/eval/live_<date>.jsonl.
+- **Benchmark sweep**: re-runs the gateway on all 498 held-out cases and 353 authentic tools in ~2 s, with the same code as
+  results/results.md. Latency here is measured live in-process (includes temp pin-store setup, so p95 is a bit higher
+  than results.md). ASR is recomputed from the run file (provenance shown); "Run 3 more" runs cases live.
+- **Agent chat**: the real tool-calling agent over whatever is connected in Live wire.
+
+Laptop + lab PC model (no Ollama exposed on the network): on the lab PC `sudo apt install openssh-server` once; on the
+laptop `ssh -N -L 11434:127.0.0.1:11434 shiva@<lab-PC-IP>` and keep `ollama_host: http://localhost:11434` and
+`model: qwen3:8b`. The model chip in the header turns green when reachable; deterministic parts work without it.
+
+## Gateway Studio (Story mode, /): hands-on animated demo (you drive every step)
 ```
 scripts/demo_ui.sh            # starts demo_ui.server on http://127.0.0.1:8765 and opens Chrome full-screen
 ```

@@ -11,7 +11,9 @@ Owner: Shivansh. If something below is ambiguous or missing, ASK — do not inve
 - No hand-crafted datasets. Generate with an LLM only when something is genuinely necessary;
   otherwise skip it and say so.
 - Local models only (Ollama, lab desktop RTX A2000 12 GB). No API models, no paid calls.
-- Test ONLY against our own fixture servers and released MCPTox data. Never probe real third-party MCP servers.
+- Test ONLY against our own fixture servers, released MCPTox data, and official open-source MCP servers run LOCALLY over
+  stdio (pinned versions, e.g. `mcp-server-git`, `mcp-server-time` via uvx; changed 2026-10-15). No hosted/remote MCP
+  servers, and never invoke a tool that makes network calls.
 - L1 and L2 are deterministic: **no LLM calls, no network, no randomness** inside them.
 - Python 3.11+, official `mcp` Python SDK, pytest. Fixed seeds everywhere. Structured JSON logs.
 - The `mcp` SDK is v2 (`mcp>=2.3,<3`): FastMCP is now `mcp.server.mcpserver.MCPServer`. Exact versions are locked in `uv.lock`.
@@ -77,6 +79,11 @@ Later. Do not build in the sprint.
 - Split: grouped by server, seed 20261012, ~60% of cases in train (29 servers / 814 cases; held-out 16 / 498).
   "Other" (n=4) falls entirely in train; reported as n=0 on held-out.
 - Hard-negative triggers: MITRE ATT&CK v19.2 technique names (frozen in commit facb89f, before L2).
+
+## Demo UI
+`demo_ui/` (`scripts/demo_ui.sh`): Story mode at `/` and Gateway Lab at `/lab`. The UI may only show real gateway
+output (tapped JSON-RPC frames, gateway log, benchmark recomputed by the eval code) or runs labelled as recorded with
+their source file. Never a mocked result.
 
 ## Fixtures (we generate the code; small and local)
 Four servers: weather (clean + poisoned variants), filesystem (legit `read_file(path)`), rug-pull server (changes its own description after approval, switchable by a control file), and a benign server whose tools use trigger words. Canary secret is a dummy file in a sandbox dir, never a real credential.

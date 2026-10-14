@@ -99,3 +99,13 @@ run 10x gateway OFF / 10x ON against poisoned weather + filesystem + canary, the
 
   Smaller models mostly did not follow the poisoned instruction (consistent with MCPTox's "more capable = more
   susceptible"). Decision: laptop runs scenes 0,1,3–8 live; scene 2 shown from the qwen3:8b video.
+
+## Day 4 (2026-10-15): Gateway Lab (/lab), the "real thing" console
+- New: fixtures/servers/mcptox_server.py (real MCP server serving MCPTox's released tool metadata), demo_ui/tap.py
+  (stdio tee logging every JSON-RPC frame on both hops), demo_ui/lab.py (sessions, agent chat), demo_ui/mcptox_lab.py
+  (case lab, live model runs, sweep, ASR from file). No change to src/gateway/.
+- Official mcp-server-git (12 tools) and mcp-server-time (2 tools) pass through the gateway with 0 removals (local, uvx 2026.10.10).
+- Live sweep reproduces results.md: 157/498 removed, 24/353 FP, Commander quarantined, in ~2 s. Real proxy == benchmark
+  code path on 12 seeded held-out cases (test). Example live case Slack#11: Success in both conditions (gateway miss).
+- CLAUDE.md: testing rule now allows official open-source MCP servers run locally (owner approved 2026-10-15); Demo UI section.
+- 28 tests pass. Next: L3/L4 plan; owner to enable sshd on lab PC for the laptop tunnel.
