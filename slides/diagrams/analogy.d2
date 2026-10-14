@@ -1,0 +1,11 @@
+*.style.font-size: 30
+**.style.font-size: 30
+(** -> **)[*].style.font-size: 24
+direction: right
+card: "Gadget + card\n(tool + description)"
+desk: "Front desk\n(gateway)" {style.fill: "#d8f0ee"; style.stroke: "#0f8a87"; style.stroke-width: 3}
+asst: "Assistant\n(LLM agent)"
+bin: "Rejected\n+ reason" {style.stroke-dash: 4}
+card -> desk
+desk -> asst: "checked"
+desk -> bin: "fails a check"

@@ -1,0 +1,11 @@
+# Report settings. Your personal details live in ~/report-kit/me.yml.
+title: "Mcp Gateway"
+profile: thesis             # project | thesis | internship | seminar (see ~/report-kit/profiles)
+# date: "May 2027"          # defaults to the current month
+# citation_style: ieee      # ieee | apa
+# format:                   # override any profile setting, e.g.
+#   spacing: 2.0
+#   chapter: {style: inline}
+# internship: {company: ..., place: ..., period: "May–July 2026", mentor: ..., mentor_title: ...}
+# target_pages: [40, 60]    # checked on the PDF
+# chapters: [01-intro.md]   # optional explicit order; default = chapters/*.md sorted

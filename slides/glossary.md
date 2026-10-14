@@ -1,0 +1,11 @@
+- MCP: Model Context Protocol
+- LLM: Large Language Model
+- ASR: Attack Success Rate
+- FPR: False Positive Rate
+- TOFU: Trust On First Use
+- SHA: Secure Hash Algorithm
+- JSON: JavaScript Object Notation
+- YAML: YAML Ain't Markup Language
+- CI: Confidence Interval
+- MITRE ATT&CK: MITRE Adversarial Tactics, Techniques and Common Knowledge
+- SDK: Software Development Kit

@@ -1,0 +1,15 @@
+*.style.font-size: 30
+**.style.font-size: 30
+(** -> **)[*].style.font-size: 24
+direction: right
+t: "Tool"
+l1: "L1: changed\nsince pinned?" 
+hold: "Hold\n+ diff" {style.fill: "#fff1cc"}
+l2: "L2: claims more\nthan schema?" 
+rm: "Remove\n+ reason" {style.fill: "#fde2e1"}
+ok: "Send to\nagent" {style.fill: "#d8f0ee"}
+t -> l1
+l1 -> hold: "yes"
+l1 -> l2: "no"
+l2 -> rm: "yes"
+l2 -> ok: "no"

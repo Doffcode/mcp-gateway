@@ -1,0 +1,47 @@
+metric,subset,condition,k,n,value,ci95_lo,ci95_hi,model,note
+FPR_tool_level,all 353,gateway L1+L2,2,353,0.068,0.0425,0.0935,qwen3:8b,
+FPR_tool_level,train servers (L2 tuned here),gateway L1+L2,2,225,0.0933,0.0578,0.1333,qwen3:8b,
+FPR_tool_level,held-out servers,gateway L1+L2,2,128,0.0234,0.0,0.0547,qwen3:8b,
+servers_quarantined,all 45,gateway L1+L2,2,45,0.0222,,,qwen3:8b,Commander
+FPR_hard_negatives,trigger-word subset of 353,gateway L1+L2,2,161,0.1366,0.087,0.1925,qwen3:8b,
+detection_rate,Code Injection,gateway L1+L2,2,9,0.6667,0.3333,0.8889,qwen3:8b,
+detection_rate,Credential Leakage,gateway L1+L2,2,26,0.8846,0.7692,1.0,qwen3:8b,
+detection_rate,Data Tampering,gateway L1+L2,2,33,0.4545,0.2727,0.6364,qwen3:8b,
+detection_rate,Financial Loss,gateway L1+L2,2,41,0.1463,0.0488,0.2439,qwen3:8b,
+detection_rate,Information Manipulation,gateway L1+L2,2,114,0.114,0.0614,0.1754,qwen3:8b,
+detection_rate,Infrastructure Damage,gateway L1+L2,2,59,0.5254,0.3898,0.6441,qwen3:8b,
+detection_rate,Instruction Tampering,gateway L1+L2,2,27,0.2222,0.0741,0.4074,qwen3:8b,
+detection_rate,Message Hijacking,gateway L1+L2,2,12,0.5,0.25,0.75,qwen3:8b,
+detection_rate,Privacy Leakage,gateway L1+L2,2,87,0.3448,0.2414,0.4483,qwen3:8b,
+detection_rate,Service Disruption,gateway L1+L2,2,90,0.2333,0.1556,0.3222,qwen3:8b,
+detection_rate,micro held-out,gateway L1+L2,2,498,0.3153,0.2751,0.3554,qwen3:8b,
+detection_rate,macro held-out,gateway L1+L2,2,10,0.4092,,,qwen3:8b,mean over categories
+latency_p95_ms,first sight (pin written to disk),gateway L1+L2,2,2250,8.2442,,,qwen3:8b,p50=1.095ms; 45 servers x 50 reps
+latency_p95_ms,already pinned,gateway L1+L2,2,2250,5.7203,,,qwen3:8b,p50=0.712ms; 45 servers x 50 reps
+ASR_micro,held-out sample n=300,no defense,2,300,0.1967,0.1533,0.2433,qwen3:8b,
+ASR_micro,held-out sample n=300,gateway (L1+L2),2,300,0.1233,0.0867,0.1633,qwen3:8b,
+delta_ASR_pp,held-out sample n=300,no defense - gateway,2,300,7.3333,3.3333,11.3333,qwen3:8b,paired case-level bootstrap
+ASR_reference_MCPTox_label,same cases n=255,no defense (MCPTox paper run),,255,0.2902,0.2392,0.349,qwen3:8b,
+ASR_by_category,Code Injection,no defense,2,5,0.2,,,qwen3:8b,
+ASR_by_category,Code Injection,gateway (L1+L2),2,5,0.0,,,qwen3:8b,
+ASR_by_category,Credential Leakage,no defense,2,16,0.4375,,,qwen3:8b,
+ASR_by_category,Credential Leakage,gateway (L1+L2),2,16,0.125,,,qwen3:8b,
+ASR_by_category,Data Tampering,no defense,2,20,0.15,,,qwen3:8b,
+ASR_by_category,Data Tampering,gateway (L1+L2),2,20,0.05,,,qwen3:8b,
+ASR_by_category,Financial Loss,no defense,2,25,0.12,,,qwen3:8b,
+ASR_by_category,Financial Loss,gateway (L1+L2),2,25,0.0,,,qwen3:8b,
+ASR_by_category,Information Manipulation,no defense,2,69,0.1884,,,qwen3:8b,
+ASR_by_category,Information Manipulation,gateway (L1+L2),2,69,0.1304,,,qwen3:8b,
+ASR_by_category,Infrastructure Damage,no defense,2,36,0.1389,,,qwen3:8b,
+ASR_by_category,Infrastructure Damage,gateway (L1+L2),2,36,0.0556,,,qwen3:8b,
+ASR_by_category,Instruction Tampering,no defense,2,16,0.25,,,qwen3:8b,
+ASR_by_category,Instruction Tampering,gateway (L1+L2),2,16,0.375,,,qwen3:8b,
+ASR_by_category,Message Hijacking,no defense,2,7,0.2857,,,qwen3:8b,
+ASR_by_category,Message Hijacking,gateway (L1+L2),2,7,0.0,,,qwen3:8b,
+ASR_by_category,Privacy Leakage,no defense,2,52,0.2692,,,qwen3:8b,
+ASR_by_category,Privacy Leakage,gateway (L1+L2),2,52,0.1731,,,qwen3:8b,
+ASR_by_category,Service Disruption,no defense,2,54,0.1296,,,qwen3:8b,
+ASR_by_category,Service Disruption,gateway (L1+L2),2,54,0.1481,,,qwen3:8b,
+ASR_macro,held-out sample n=300,no defense,2,10,0.2169,,,qwen3:8b,mean over categories
+ASR_macro,held-out sample n=300,gateway (L1+L2),2,10,0.1057,,,qwen3:8b,mean over categories
+judge_agreement,held-out stored MCPTox responses,Qwen3-8b think=True,,425,0.8894,,,qwen3:8b,

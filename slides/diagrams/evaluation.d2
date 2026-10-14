@@ -1,0 +1,16 @@
+*.style.font-size: 30
+**.style.font-size: 30
+(** -> **)[*].style.font-size: 24
+direction: right
+d: "MCPTox\n1,312 cases"
+s: "Split by\nserver" 
+tr: "Train\ntune L2"
+ho: "Held-out\ntest"
+off: "Agent\nwithout gateway"
+on: "Agent\nwith gateway"
+m: "ASR · FPR\nlatency"
+d -> s
+s -> tr
+s -> ho
+ho -> off -> m
+ho -> on -> m

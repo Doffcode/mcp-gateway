@@ -52,7 +52,7 @@ Setup on a fresh machine: `git clone … && cd mcp-gateway && scripts/setup.sh &
 - [x] Demo 3: `agent/loop.py`, `scripts/demo3_live.sh`. OFF leaked 10/10, ON 0/10 (preliminary, n=10/mode, qwen3:8b think=off,
       temp 0.7, seeds 0-9). Backup recording: `recordings/demo3/`. With gateway ON the agent loses get_weather (utility cost).
 - [x] Demo 4 machinery: `eval/run_mcptox.py` (resumable, var/eval/), `eval/judge.py`, `eval/report.py` -> results/results.{md,csv}
-- [ ] Demo 4 ASR run (held-out n=300 stratified, think=on) -> then `eval.report`
+- [x] Demo 4 ASR run (held-out n=300 stratified, think=on): 19.7% -> 12.3%, ΔASR 7.3 pp (CI 3.3–11.3), see results/results.md
 
 ## Next step (Day 2, lab PC)
 `git pull && scripts/setup.sh && uv run pytest -q`, then build `agent/loop.py` (Ollama tool-calling over MCP),
@@ -74,3 +74,10 @@ run 10x gateway OFF / 10x ON against poisoned weather + filesystem + canary, the
 ## CLAUDE.md edits: APPLIED 2026-10-13 (approved by owner as written)
 - 2-day timeline, L3 deferred, bootstrap CIs allowed, mcp v2 note, two-machine workflow section,
   qsag-core 0.2.2 pin, MCPTox counts, split recorded. 60/40 split confirmed by owner.
+
+## Day 3 (2026-10-14, lab PC)
+- n=300 run had stopped at 147/300 (host OOM); resumed and finished. `uv run python -m eval.report var/eval/mcptox_heldout_n300_think-on.jsonl`.
+- Latency is re-measured on every report run (p95 now 8.24 ms first sight / 5.72 ms pinned; earlier run 11.67 / 6.54).
+- Review II deck: `slides/` (Report Kit, `report slides build`) -> slides/out/slides.pptx. Contents per owner: intro (2, incl. office-assistant
+  analogy), literature, problem, objectives, methodology x3; results only as a backup slide. References verified in report/refs.bib.
+- CORRECTION: arXiv 2604.17125 is an AUDIT of CASCADE (FPR 1.51%–11.70% by decision convention), not CASCADE itself. Do not quote 6.06%.

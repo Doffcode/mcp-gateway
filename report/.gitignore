@@ -1,0 +1,8 @@
+_report.*
+kit-profile.typ
+_build/
+*_files/
+.quarto/
+figures/.*.done
+refs/typst.bib
+refs/*.csl

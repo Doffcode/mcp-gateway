@@ -1,0 +1,16 @@
+*.style.font-size: 30
+**.style.font-size: 30
+(** -> **)[*].style.font-size: 24
+direction: right
+srv: "MCP\nserver"
+gw: "Gateway" {
+  style.fill: "#e8f6f5"
+  direction: right
+  l1: "L1\npin"
+  l2: "L2\ncheck"
+  lad: "Ladder"
+  l1 -> l2 -> lad
+}
+agent: "AI\nagent"
+srv -> gw.l1
+gw.lad -> agent
