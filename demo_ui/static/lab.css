@@ -135,3 +135,7 @@ pre.json { grid-column: 1 / -1; white-space: pre-wrap; word-break: break-all; co
 #tab-sweep, #tab-chat { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
 .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .rbar { grid-template-columns: 180px minmax(0, 1fr) 70px; }
+
+.l4-review { margin-top: 6px; }
+.l4-review button { font-size: .78rem; padding: 3px 7px; }
+.l4-review .reason:empty { display: none; }

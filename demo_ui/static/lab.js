@@ -72,7 +72,9 @@ function lanes(t, gw, score) {
   return `<span class="lane ok" title="${esc(t.hash)}">L1 ${t.hash.slice(0, 8)}</span>
     <span class="lane ${l2bad ? "bad" : "ok"}" title="implied: ${esc(Object.keys(t.implied).join(", ") || "none")} · declared: ${esc(t.declared.join(", ") || "none")}">L2 ${l2bad ? "✗ " + t.flags.map((f) => f.category).join(",") : "✓"}</span>
     ${l2bad ? `<div class="reason">${t.flags.map((f) => esc(f.reason)).join("<br>")}</div>` : ""}
-    ${score ? `<span class="lane ${score.verdict === "flagged" ? "bad" : "ok"}">L3 ${score.verdict === "flagged" ? "flagged" : "below threshold"} · ${score.score.toFixed(4)} / ${score.threshold.toFixed(7)}</span>` : '<span class="lane na">L3 unavailable</span>'}`;
+    ${score ? `<span class="lane ${score.verdict === "flagged" ? "bad" : "ok"}">L3 ${score.verdict === "flagged" ? "flagged" : "below threshold"} · ${score.score.toFixed(4)} / ${score.threshold.toFixed(7)}</span>` : '<span class="lane na">L3 unavailable</span>'}
+    ${t.l4 ? `<div class="l4-review"><button data-review-id="${esc(t.l4.id)}">Review with L4${t.l4.suggested ? " · suggested" : ""}</button>
+    <div class="reason" aria-live="polite"></div></div>` : ""}`;
 }
 function renderTools(r) {
   const opts = [];
@@ -95,6 +97,23 @@ function renderTools(r) {
   $("#call-tool").innerHTML = opts.join("");
   $("#procs").innerHTML = r.procs.map((p) => `<div><b>pid ${p.proc.pid}</b> ${esc(p.hop)}<br>${esc(p.proc.cmd.slice(-4).join(" "))}</div>`).join("");
 }
+
+$("#tooltable").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-review-id]");
+  if (!button) return;
+  const result = $(".reason", button.parentElement);
+  result.textContent = "";
+  busy(button, "Reviewing…", async () => {
+    try {
+      const review = await api("/api/lab/review", {body: {id: button.dataset.reviewId}});
+      const verdict = review.verdict.replaceAll("_", " ");
+      const evidence = review.evidence_field && review.evidence_field !== "none" ? ` · ${review.evidence_field.replaceAll("_", " ")}` : "";
+      result.textContent = `L4 ${verdict} · ${review.model}${evidence} · ${review.elapsed_ms} ms. ${review.reason}`;
+    } catch (error) {
+      result.textContent = error.message;
+    }
+  });
+});
 
 $("#call").onclick = () => busy($("#call"), "calling…", async () => {
   const [server, tool] = $("#call-tool").value.split("::");

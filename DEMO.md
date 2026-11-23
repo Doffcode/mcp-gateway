@@ -73,8 +73,9 @@ scripts/demo_ui.sh          # opens /lab; Story mode stays at /
 - **Live wire**: tick real servers. Choose from the weather/filesystem fixtures, the MCPTox replay server (any of the 45 servers,
   optionally with a poisoned case), and the official `mcp-server-git` and `mcp-server-time` (uvx, pinned 2026.10.10). Pick gateway In the path or
   Bypassed, then Connect. You see the spawned PIDs, every JSON-RPC frame on both hops (click a frame for raw JSON), the
-  gateway log, and per tool what the server sent vs what the agent got, with L1 hash and L2 verdict (L3/L4 lanes say "not
-  built"). "Call tool" makes a real call (a removed tool is blocked by the gateway).
+  gateway log, and what the server sent versus what the agent got, with the L1 hash, L2 reason, and L3 score.
+  **Review with L4** requests an advisory metadata review from local Ollama using `qwen3:8b`.
+  **Call tool** makes a real call. The gateway blocks calls to removed tools.
 - **MCPTox case lab**: pick or 🎲 a real case. A = its tools/list through the real proxy (also shows that the benchmark
   code path gives the same decision). B/C = the model answers live, no defense / with gateway, judged by eval/judge.py,
   next to MCPTox's own published labels and the stored n=300 result (file + line). Live runs append to var/eval/live_<date>.jsonl.

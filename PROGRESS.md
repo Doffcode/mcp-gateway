@@ -136,3 +136,9 @@ run 10x gateway OFF / 10x ON against poisoned weather + filesystem + canary, the
 
 ## 2026-11-23 · Review III laptop handoff
 - Prepared a CPU-only launcher and setup fallback. See `REVIEW-III.md` for the laptop walkthrough, the guide briefing, and which submission items remain open.
+
+## 2026-11-23 · Optional live L4 review
+- Added per-tool L4 review in Lab with local `qwen3:8b`. It uses the captured tool listing and structured output. Suggestions cover L2/L3 disagreement or an L3 score within 0.05 of its threshold.
+- Verified live in Chrome. L4 flagged the altered weather metadata and rated the clean forecast low risk. L1+L2 still removed weather and served forecast. Local warm calls took 1.29–1.65 s in that walkthrough.
+- In a targeted spot check, L4 rated both authentic tools that L3 additionally flagged (Contentful and Clarity) low risk. These four cases illustrate behavior. They do not measure L4 accuracy, generalization, or attack-success reduction.
+- All 38 tests passed. Local screenshot and JSON are in `var/l4/`.

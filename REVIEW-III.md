@@ -27,6 +27,8 @@ Start the dashboard and open `http://127.0.0.1:8765/lab`:
 
 In **Live Wire**, leave **Weather** and **Filesystem** selected, deselect the other servers, and keep the gateway **In the path**. Click **Connect**. The altered weather tool shows an L2 reason and an L3 flagged score of about **0.6592** against threshold **0.5436877**. The decision column attributes removal to the existing gateway. The forecast tool stays served. L3 runs on CPU and the walkthrough does not require Ollama. For the agent before/after replay, open Story mode, choose scene 2, and select **Recorded run**.
 
+For an optional live L4 walkthrough, make `qwen3:8b` available in Ollama on `127.0.0.1:11434`. In Lab click **Review with L4** on the weather tool and then on the forecast tool. L4 displays its verdict, evidence field, reason, and latency. **Suggested** marks disagreement between L2 and L3 or an L3 score within 0.05 of its threshold. The decision column continues to show the L1+L2 enforcement outcome. If local Ollama is unavailable, use the offline L3 walkthrough.
+
 ## Brief the guide
 
 | Evidence | Claim to make |
@@ -34,6 +36,6 @@ In **Live Wire**, leave **Weather** and **Filesystem** selected, deselect the ot
 | Existing paired MCPTox result | L1+L2 reduced observed attack success from **59/300 to 37/300** (19.7% to 12.3%, difference 7.3 percentage points, 95% CI 3.3–11.3). In this first-sight setup the detection came from L2 and the decision ladder. |
 | L3 screening on frozen MCPTox | L3 flagged **340/341** poisoned examples and **1/125** authentic tools that the existing gateway would have served. It did not control admission and the run did not measure additional attack-success reduction. |
 | External utility | Across **334 authentic tools from 19 unfamiliar families**, L2 flagged 15, the existing ladder removed 56, and L3 added **2/278** flags after baseline removals. Both were zero-parameter tools (**2/12** still served in that subset). |
-| Phase II | Seek an eligible independent labeled metadata set, especially records with populated schemas. Measure the effect of L3 enforcement in a separate paired experiment before considering it for the default gateway. Test L4 only if a second review adds useful evidence. |
+| Phase II | Seek an eligible independent labeled metadata set, especially records with populated schemas. Measure the effect of L3 enforcement in a separate paired experiment before considering it for the default gateway. Evaluate L4 on the cases that would be routed to it and measure its incremental value. |
 
 Read [benchmark evidence](results/results.md), [L3 results](results/l3_screening.md), and [external utility](results/l3_external_utility.md). A [repo handoff](PROGRESS.md) describes the latest implementation. The existing presentation files are from Review II. Review III slides, the rough thesis chapters, and the current guide form still need to be finalized.

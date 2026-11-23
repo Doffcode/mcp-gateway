@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 
 import uvicorn
+from anyio import WouldBlock
 from sse_starlette.sse import EventSourceResponse
 from starlette.applications import Starlette
 from starlette.requests import Request
@@ -107,6 +108,22 @@ async def lab_call(request: Request) -> JSONResponse:
     return JSONResponse(await LAB.call(b["server"], b["tool"], b.get("args") or {}))
 
 
+async def lab_review(request: Request) -> JSONResponse:
+    try:
+        body = await request.json()
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JSONResponse({"error": "A JSON review request is required."}, status_code=400)
+    review_id = body.get("id") if isinstance(body, dict) else None
+    if not isinstance(review_id, str):
+        return JSONResponse({"error": "A review ID is required."}, status_code=400)
+    try:
+        return JSONResponse(await LAB.review_tool(review_id))
+    except KeyError:
+        return JSONResponse({"error": "That tool listing expired. Reconnect before reviewing."}, status_code=404)
+    except WouldBlock:
+        return JSONResponse({"error": "L4 is reviewing another tool. Try again when it finishes."}, status_code=429)
+
+
 async def lab_disconnect(request: Request) -> JSONResponse:
     await LAB.disconnect()
     return JSONResponse({"ok": True})
@@ -186,6 +203,7 @@ app = Starlette(routes=[
     Route("/api/lab/connect", lab_connect, methods=["POST"]),
     Route("/api/lab/list", lab_list),
     Route("/api/lab/call", lab_call, methods=["POST"]),
+    Route("/api/lab/review", lab_review, methods=["POST"]),
     Route("/api/lab/disconnect", lab_disconnect, methods=["POST"]),
     Route("/api/lab/stream", lab_stream),
     Route("/api/lab/chat", lab_chat),

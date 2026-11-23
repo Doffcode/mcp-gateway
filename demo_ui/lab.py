@@ -12,12 +12,14 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+from uuid import uuid4
 
-from anyio import to_thread
+from anyio import CapacityLimiter, to_thread
 from mcp import Client
 from mcp.client.stdio import StdioServerParameters
 
 from gateway.l3 import Scorer
+from gateway.l4 import Review, review_metadata
 
 from .scenarios import ROOT, SERVERS, TAXONOMY, tool_card
 
@@ -56,6 +58,8 @@ class LabSession:
         self.cfg.write_text(f"k: 2\npin_store: {self.work / 'pins.json'}\nlog_file: {self.gwlog}\ntaxonomy_dir: {TAXONOMY}\n")
         self.gateway = True
         self.l3_scorer = None
+        self.reviews: dict[str, Review] = {}
+        self.review_limit = CapacityLimiter(1)
 
     def screen_tools(self, tools: list[dict]) -> dict:
         try:
@@ -98,6 +102,7 @@ class LabSession:
 
     async def list_all(self) -> dict:
         out = {}
+        reviews = {}
         for name, c in self.clients.items():
             mark = self._len(self.gwlog)
             t0 = time.perf_counter()
@@ -107,17 +112,43 @@ class LabSession:
             upstream = self._last_upstream_tools(name) if self.gateway else [t.model_dump(mode="json", by_alias=True) for t in served]
             removed = {r["tool"]: r["reason"] for r in log if r.get("event") == "removed" and r.get("server") == name}
             l3 = await to_thread.run_sync(self.screen_tools, upstream) if self.gateway else {"status": "bypassed", "tools": []}
+            cards = [tool_card(tool) for tool in upstream]
+            if self.gateway:
+                scores = {row["tool"]: row for row in l3["tools"]}
+                names = [card["name"] for card in cards]
+                for tool, card in zip(upstream, cards, strict=True):
+                    score = scores.get(card["name"], {})
+                    review = Review(
+                        name=card["name"], description=card["description"],
+                        schema=json.dumps(tool.get("inputSchema") or {}, ensure_ascii=False),
+                        sibling_names=tuple(name for name in names if name != card["name"]),
+                        l2_categories=tuple(flag["category"] for flag in card["flags"]),
+                        l3_score=score.get("score"), l3_threshold=score.get("threshold"),
+                    )
+                    review_id = uuid4().hex
+                    reviews[review_id] = review
+                    card["l4"] = {"id": review_id, "suggested": review.suggested()}
             out[name] = {**self.info[name], "gateway": self.gateway, "roundtrip_ms": round(ms, 1),
-                         "upstream": [tool_card(t) for t in upstream], "served": [t.name for t in served], "l3": l3,
+                         "upstream": cards, "served": [t.name for t in served], "l3": l3,
                          "removed": removed, "check_ms": next((r.get("check_ms") for r in log if r.get("event") == "tools_list"
                                                                  and r.get("server") == name), None)}
+        self.reviews = reviews
         return {"servers": out, "procs": self.procs()}
+
+    async def review_tool(self, review_id: str) -> dict:
+        review = self.reviews[review_id]
+        self.review_limit.acquire_nowait()
+        try:
+            return await review_metadata(review)
+        finally:
+            self.review_limit.release()
 
     async def call(self, server: str, tool: str, args: dict) -> dict:
         r = await self.clients[server].call_tool(tool, args)
         return {"is_error": bool(r.is_error), "text": "\n".join(getattr(x, "text", "") for x in r.content)}
 
     async def disconnect(self) -> None:
+        self.reviews.clear()
         for c in reversed(list(self.clients.values())):
             try:
                 await c.__aexit__(None, None, None)
