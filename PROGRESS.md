@@ -118,3 +118,21 @@ run 10x gateway OFF / 10x ON against poisoned weather + filesystem + canary, the
 - NOT on this laptop: `var/eval/mcptox_heldout_n300_think-on.jsonl` (lab PC only) -> Lab "ASR from file" and the case lab's
   stored-result column are unavailable. No local model (live scene 2 / agent chat / case-lab B,C need the lab PC tunnel).
 - Report Kit updated (slide support); deck rebuilt `--final` -> slides/out/slides.pptx (13 slides). Backup slide test count 17 -> 28.
+
+## 2026-11-23 · L3 classifier experiment
+- Built and ran CPU TF–IDF, frozen E5, two GPU fine-tuning checkpoints, and frozen E5 with sibling names. Five server-grouped training folds selected TF–IDF on the incremental-coverage tie.
+- Frozen held-out screening flagged 497/498 poisoned tools and 1/128 authentic tools. Additional flags beyond the baseline were 340/341 poisoned and 1/125 authentic tools that the baseline served. See `results/l3_screening.md` for the schema imbalance and limits.
+- Saved the scorer and metrics under `var/l3/` and verified clean and altered local weather listings over MCP. All 31 tests pass with the cached local server packages. Gateway decisions, dashboard, and L4 remain as before. Next: integrate the scorer into Lab when dashboard work resumes.
+
+## 2026-11-23 · L3 diagnostics and Review III Lab view
+- Kept the full TF–IDF artifact and 0.5436877 threshold. On reused held-out data, the no-arguments rule flagged 492/498 poisoned and 8/128 authentic. Name/description-only TF–IDF flagged 493/498 and 12/128. See `results/l3_screening.md` for counts after the L1+L2 baseline.
+- Frozen L3 flagged 0/27 tools and 0/2 servers in the external Time/Playwright cohort. Also scored clean fixtures and newer local Git/Filesystem/Memory tools as separate cohorts. No tool calls.
+- Lab Live Wire displays the L2 reason alongside the frozen L3 score and threshold, with the real gateway decision in its own column. Verified in Chrome with the weather fixture. L3 is screening only.
+
+## 2026-11-23 · External L3 utility evaluation
+- Froze the artifact, L2 taxonomy, and local source manifest. Collected 334 unique tools from 19 new families via sandboxed local stdio. The sample included 14 explicit zero-parameter tools across six families.
+- Direct L2 flagged 15/334 tools, and existing L1+L2 replay removed 56/334. L3 added 2/278 flags among served tools, both with zero parameters (2/12). No policy or threshold changes.
+- Repeat-check Time/Playwright remains 0/27. Independent labeled detection is pending because no reviewed release met the eligibility gate. See `results/l3_external_utility.md` and local `var/l3-external-r1/results.json`.
+
+## 2026-11-23 · Review III laptop handoff
+- Prepared a CPU-only launcher and setup fallback. See `REVIEW-III.md` for the laptop walkthrough, the guide briefing, and which submission items remain open.

@@ -6,19 +6,24 @@ The UI shows exactly what the taps and the gateway log recorded; nothing is synt
 """
 
 import json
+import logging
 import os
 import sys
 import tempfile
 import time
 from pathlib import Path
 
+from anyio import to_thread
 from mcp import Client
 from mcp.client.stdio import StdioServerParameters
+
+from gateway.l3 import Scorer
 
 from .scenarios import ROOT, SERVERS, TAXONOMY, tool_card
 
 PY = sys.executable
 OFFICIAL_VERSION = "2026.10.10"  # pinned versions of the official reference servers (run locally via uvx)
+L3_ARTIFACT = ROOT / "var" / "l3"
 
 
 def server_cmd(kind: str, opts: dict) -> list[str]:
@@ -50,6 +55,19 @@ class LabSession:
         self.cfg = self.work / "gateway.yaml"
         self.cfg.write_text(f"k: 2\npin_store: {self.work / 'pins.json'}\nlog_file: {self.gwlog}\ntaxonomy_dir: {TAXONOMY}\n")
         self.gateway = True
+        self.l3_scorer = None
+
+    def screen_tools(self, tools: list[dict]) -> dict:
+        try:
+            if self.l3_scorer is None:
+                self.l3_scorer = Scorer(L3_ARTIFACT)
+            scores = self.l3_scorer.score_listing(tools)
+        except FileNotFoundError:
+            return {"status": "unavailable", "tools": []}
+        except Exception:
+            logging.getLogger(__name__).warning("Lab L3 screening unavailable", exc_info=True)
+            return {"status": "unavailable", "tools": []}
+        return {"status": "screening", "model": self.l3_scorer.kind, "tools": scores}
 
     def _tap(self, hop: str, cmd: list[str]) -> list[str]:
         return [PY, "-m", "demo_ui.tap", "--hop", hop, "--log", str(self.wire), "--", *cmd]
@@ -88,8 +106,9 @@ class LabSession:
             log = self._read(self.gwlog, mark)
             upstream = self._last_upstream_tools(name) if self.gateway else [t.model_dump(mode="json", by_alias=True) for t in served]
             removed = {r["tool"]: r["reason"] for r in log if r.get("event") == "removed" and r.get("server") == name}
+            l3 = await to_thread.run_sync(self.screen_tools, upstream) if self.gateway else {"status": "bypassed", "tools": []}
             out[name] = {**self.info[name], "gateway": self.gateway, "roundtrip_ms": round(ms, 1),
-                         "upstream": [tool_card(t) for t in upstream], "served": [t.name for t in served],
+                         "upstream": [tool_card(t) for t in upstream], "served": [t.name for t in served], "l3": l3,
                          "removed": removed, "check_ms": next((r.get("check_ms") for r in log if r.get("event") == "tools_list"
                                                                  and r.get("server") == name), None)}
         return {"servers": out, "procs": self.procs()}

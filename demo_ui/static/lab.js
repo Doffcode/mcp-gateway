@@ -66,27 +66,29 @@ $("#connect").onclick = () => busy($("#connect"), "spawning processes…", async
   renderTools(CONNECTED);
 });
 
-function lanes(t, removed, gw) {
+function lanes(t, gw, score) {
   if (!gw) return `<span class="lane na">gateway bypassed</span>`;
   const l2bad = t.flags.length > 0;
   return `<span class="lane ok" title="${esc(t.hash)}">L1 ${t.hash.slice(0, 8)}</span>
     <span class="lane ${l2bad ? "bad" : "ok"}" title="implied: ${esc(Object.keys(t.implied).join(", ") || "none")} · declared: ${esc(t.declared.join(", ") || "none")}">L2 ${l2bad ? "✗ " + t.flags.map((f) => f.category).join(",") : "✓"}</span>
-    <span class="lane na">L3 not built</span><span class="lane na">L4 not built</span>`;
+    ${l2bad ? `<div class="reason">${t.flags.map((f) => esc(f.reason)).join("<br>")}</div>` : ""}
+    ${score ? `<span class="lane ${score.verdict === "flagged" ? "bad" : "ok"}">L3 ${score.verdict === "flagged" ? "flagged" : "below threshold"} · ${score.score.toFixed(4)} / ${score.threshold.toFixed(7)}</span>` : '<span class="lane na">L3 unavailable</span>'}`;
 }
 function renderTools(r) {
   const opts = [];
   $("#tooltable").innerHTML = Object.entries(r.servers).map(([name, s]) => {
     const served = new Set(s.served);
+    const scores = new Map(s.l3.tools.map((row) => [row.tool, row]));
     s.served.forEach((t) => opts.push(`<option value="${esc(name)}::${esc(t)}">${esc(name)} · ${esc(t)}</option>`));
     Object.keys(s.removed).forEach((t) => opts.push(`<option value="${esc(name)}::${esc(t)}">${esc(name)} · ${esc(t)} (removed: try it)</option>`));
     return `<div class="srvblock"><div class="srvhead"><b>${esc(name)}</b>
-      <span class="small">server sent ${s.upstream.length} tools → agent got ${s.served.length}</span>
+      <span class="small">server sent ${s.upstream.length} tools → agent got ${s.served.length}${s.l3.status === "screening" ? " · L3 screening only" : ""}</span>
       <span class="r">${s.check_ms != null ? `gateway check ${s.check_ms} ms · ` : ""}round trip ${s.roundtrip_ms} ms</span></div>
       <table class="tt"><tr><th>tool (as the server sent it)</th><th>layers</th><th>decision</th></tr>
       ${s.upstream.map((t) => {
         const rm = !served.has(t.name);
         return `<tr class="new ${rm ? "rm" : ""}"><td class="name mono">${esc(t.name)}<div class="small">${esc(t.description.slice(0, 110))}${t.description.length > 110 ? "…" : ""}</div></td>
-          <td>${lanes(t, rm, s.gateway)}</td>
+          <td>${lanes(t, s.gateway, scores.get(t.name))}</td>
           <td>${rm ? `<b style="color:var(--bad)">removed</b><div class="reason">${esc(s.removed[t.name] || "")}</div>` : `<span style="color:var(--safe)">served</span>`}</td></tr>`;
       }).join("")}</table></div>`;
   }).join("");

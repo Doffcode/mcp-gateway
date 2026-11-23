@@ -51,6 +51,21 @@ scripts/demo4_numbers.sh     # resumes the cached eval in var/eval/, then writes
 Results are in `results/results.md` (human) and `results/results.csv` (one row per number, with n and CI).
 Everything is labelled preliminary, single run, model qwen3:8b (think on).
 
+## L3 metadata screening experiment
+
+Use the project environment with the optional L3 dependencies. On the lab PC, install the CUDA 12.8 build of PyTorch before the GPU run.
+
+```sh
+uv pip install -r eval/requirements-l3.txt
+uv pip install --index https://download.pytorch.org/whl/cu128 'torch==2.7.1+cu128'
+OPENBLAS_NUM_THREADS=2 OMP_NUM_THREADS=2 .venv/bin/python -m eval.train_l3 --device cuda --output var/l3
+.venv/bin/python -m eval.score_l3 --artifact var/l3 --device cuda -- python fixtures/servers/weather.py --variant clean
+```
+
+Training compares the text baseline, frozen E5, fine-tuned E5, and frozen E5 with sibling-tool names. It chooses the model and threshold on five server-grouped training folds, then scores the held-out servers. Add `--text-only` to train the CPU baseline without PyTorch. Use a new output directory for each run.
+
+The output directory contains the selected model, `manifest.json`, and `results.json` with validation comparisons, held-out metrics, and inference timings. Load artifacts from trusted training runs. The live scoring command fetches and scores a local MCP tool list without calling the tools. These verdicts are screening evidence. The L1+L2 gateway and its reported attack success rates use the existing policy.
+
 ## Gateway Lab: the real thing, live (http://127.0.0.1:8765/lab)
 ```
 scripts/demo_ui.sh          # opens /lab; Story mode stays at /

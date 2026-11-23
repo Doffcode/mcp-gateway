@@ -1,0 +1,3 @@
+# L3 is optional. Install a matching CUDA or CPU build of PyTorch separately.
+scikit-learn==1.6.1
+transformers==4.53.3

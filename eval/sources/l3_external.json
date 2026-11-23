@@ -1,0 +1,339 @@
+{
+  "objective": "Unfamiliar authentic MCP tool listings. A family is a distinct server implementation and tool surface; forks and wrappers of the same definition set share a family.",
+  "excluded_known_families": [
+    "MCPTox server families",
+    "Time",
+    "Playwright",
+    "owned diagnostic fixtures",
+    "Notion (listed in the MCPTox paper)",
+    "Google Maps"
+  ],
+  "runtime": "Node 22.16.0, Bubblewrap with isolated network and no host home",
+  "k": 2,
+  "hashes": {
+    "artifact": {
+      "manifest.json": "6a983104be4d87ef5e4492578810dbb97af4c794dc0f296cc0eca729304c998d",
+      "classifier.joblib": "817e4d48b5028bff3c81d202f810cebdc9b811effb4d63354282653fb7ce5651"
+    },
+    "taxonomy": {
+      "credentials.yaml": "b8ddea5ea23a5d8f9ac5c84719a9c79b53aaf372f1ad9639d9d3d4b01146f82a",
+      "email.yaml": "c4ea3febf77f14fcfb44da0061ebfe9577d5710ced8cf0c57ae8ad672287e407",
+      "filesystem.yaml": "9bcc69405a4a3e2b525d248eb0561125a1a0b1a9f37911cb9b0e40195aa5b15e",
+      "network.yaml": "ab7166b269ea829b5a1d540dc5fb20ba9d5100c6cc1e78fec0382fe8f29963bc",
+      "subprocess.yaml": "4360d139b62cbb56eb53677207635349d44afbb987d4cfb8647c88b56ec67dac"
+    },
+    "npm_lock": "3b87fd0efa0f7bddca6cecccd094acb2da3b2b6859faa3c1dcfb6ff27fa506e4",
+    "node": "8142d37c6f2f372ef040419e7a111a6baf17df89f8078d02447d6c639ae20c1d"
+  },
+  "sources": [
+    {
+      "family": "context7",
+      "cohort": "primary",
+      "package": "@upstash/context7-mcp",
+      "version": "4.7.3",
+      "release": "https://registry.npmjs.org/@upstash%2Fcontext7-mcp/4.7.3",
+      "entry": "dist/index.js",
+      "environment": {
+        "DISABLE_TELEMETRY": "1"
+      },
+      "args": []
+    },
+    {
+      "family": "shopify",
+      "cohort": "primary",
+      "package": "@shopify/dev-mcp",
+      "version": "1.19.0",
+      "release": "https://registry.npmjs.org/@shopify%2Fdev-mcp/1.19.0",
+      "entry": "dist/index.js",
+      "environment": {
+        "OPT_OUT_INSTRUMENTATION": "true"
+      },
+      "args": []
+    },
+    {
+      "family": "svelte",
+      "cohort": "primary",
+      "package": "@sveltejs/mcp",
+      "version": "0.1.31",
+      "release": "https://registry.npmjs.org/@sveltejs%2Fmcp/0.1.31",
+      "entry": "dist/index.mjs",
+      "environment": {},
+      "args": []
+    },
+    {
+      "family": "perplexity",
+      "cohort": "primary",
+      "package": "@perplexity-ai/mcp-server",
+      "version": "1.3.0",
+      "release": "https://registry.npmjs.org/@perplexity-ai%2Fmcp-server/1.3.0",
+      "entry": "dist/index.js",
+      "environment": {
+        "PERPLEXITY_API_KEY": "offline-placeholder"
+      },
+      "args": []
+    },
+    {
+      "family": "firecrawl",
+      "cohort": "primary",
+      "package": "firecrawl-mcp",
+      "version": "3.41.0",
+      "release": "https://registry.npmjs.org/firecrawl-mcp/3.41.0",
+      "entry": "dist/index.js",
+      "environment": {
+        "FIRECRAWL_API_KEY": "fc-offline-placeholder"
+      },
+      "args": []
+    },
+    {
+      "family": "supabase",
+      "cohort": "primary",
+      "package": "@supabase/mcp-server-supabase",
+      "version": "0.19.0",
+      "release": "https://registry.npmjs.org/@supabase%2Fmcp-server-supabase/0.19.0",
+      "entry": "dist/cli.js",
+      "environment": {
+        "SUPABASE_ACCESS_TOKEN": "offline-placeholder"
+      },
+      "args": []
+    },
+    {
+      "family": "antv",
+      "cohort": "primary",
+      "package": "@antv/mcp-server-chart",
+      "version": "0.9.10",
+      "release": "https://registry.npmjs.org/@antv%2Fmcp-server-chart/0.9.10",
+      "entry": "build/index.js",
+      "environment": {},
+      "args": []
+    },
+    {
+      "family": "eslint",
+      "cohort": "primary",
+      "package": "@eslint/mcp",
+      "version": "0.3.17",
+      "release": "https://registry.npmjs.org/@eslint%2Fmcp/0.3.17",
+      "entry": "src/mcp-cli.js",
+      "environment": {},
+      "args": []
+    },
+    {
+      "family": "kubernetes",
+      "cohort": "primary",
+      "package": "mcp-server-kubernetes",
+      "version": "4.2.3",
+      "release": "https://registry.npmjs.org/mcp-server-kubernetes/4.2.3",
+      "entry": "dist/index.js",
+      "environment": {},
+      "args": []
+    },
+    {
+      "family": "heroku",
+      "cohort": "primary",
+      "package": "@heroku/mcp-server",
+      "version": "1.2.15",
+      "release": "https://registry.npmjs.org/@heroku%2Fmcp-server/1.2.15",
+      "entry": "bin/heroku-mcp-server.mjs",
+      "environment": {
+        "HEROKU_API_KEY": "offline-placeholder"
+      },
+      "args": []
+    },
+    {
+      "family": "sap-fiori",
+      "cohort": "primary",
+      "package": "@sap-ux/fiori-mcp-server",
+      "version": "1.17.0",
+      "release": "https://registry.npmjs.org/@sap-ux%2Ffiori-mcp-server/1.17.0",
+      "entry": "./dist/index.js",
+      "environment": {},
+      "args": []
+    },
+    {
+      "family": "cloudflare",
+      "cohort": "primary",
+      "package": "@cloudflare/mcp-server-cloudflare",
+      "version": "0.2.0",
+      "release": "https://registry.npmjs.org/@cloudflare%2Fmcp-server-cloudflare/0.2.0",
+      "entry": "dist/index.js",
+      "environment": {
+        "CLOUDFLARE_API_TOKEN": "offline-placeholder"
+      },
+      "args": []
+    },
+    {
+      "family": "mongodb",
+      "cohort": "primary",
+      "package": "mongodb-mcp-server",
+      "version": "3.3.0",
+      "release": "https://registry.npmjs.org/mongodb-mcp-server/3.3.0",
+      "entry": "dist/esm/index.js",
+      "environment": {
+        "MDB_MCP_TELEMETRY": "disabled",
+        "MDB_MCP_READ_ONLY": "true"
+      },
+      "args": []
+    },
+    {
+      "family": "elasticsearch",
+      "cohort": "primary",
+      "package": "@elastic/mcp-server-elasticsearch",
+      "version": "0.3.1",
+      "release": "https://registry.npmjs.org/@elastic%2Fmcp-server-elasticsearch/0.3.1",
+      "entry": "dist/index.js",
+      "environment": {
+        "ES_URL": "http://127.0.0.1:9200",
+        "ES_API_KEY": "offline-placeholder"
+      },
+      "args": []
+    },
+    {
+      "family": "postgres",
+      "cohort": "primary",
+      "package": "@modelcontextprotocol/server-postgres",
+      "version": "0.6.2",
+      "release": "https://registry.npmjs.org/@modelcontextprotocol%2Fserver-postgres/0.6.2",
+      "entry": "dist/index.js",
+      "environment": {},
+      "args": [
+        "postgresql://127.0.0.1:5432/metadata"
+      ]
+    },
+    {
+      "family": "docker",
+      "cohort": "primary",
+      "package": "mcp-server-docker",
+      "version": "1.0.0",
+      "release": "https://registry.npmjs.org/mcp-server-docker/1.0.0",
+      "entry": "dist/index.js",
+      "environment": {},
+      "args": []
+    },
+    {
+      "family": "netlify",
+      "cohort": "primary",
+      "package": "@netlify/mcp",
+      "version": "1.22.1",
+      "release": "https://registry.npmjs.org/@netlify%2Fmcp/1.22.1",
+      "entry": "dist/netlify-mcp.js",
+      "environment": {
+        "NETLIFY_PERSONAL_ACCESS_TOKEN": "offline-placeholder"
+      },
+      "args": []
+    },
+    {
+      "family": "firebase",
+      "cohort": "primary",
+      "package": "firebase-tools",
+      "version": "15.37.0",
+      "release": "https://registry.npmjs.org/firebase-tools/15.37.0",
+      "entry": "lib/bin/firebase.js",
+      "environment": {
+        "FIREBASE_CLI_DISABLE_TELEMETRY": "1"
+      },
+      "args": [
+        "mcp"
+      ]
+    },
+    {
+      "family": "railway",
+      "cohort": "primary",
+      "package": "@railway/mcp-server",
+      "version": "0.1.12",
+      "release": "https://registry.npmjs.org/@railway%2Fmcp-server/0.1.12",
+      "entry": "index.js",
+      "environment": {},
+      "args": []
+    },
+    {
+      "family": "figma",
+      "cohort": "primary",
+      "package": "figma-developer-mcp",
+      "version": "0.13.2",
+      "release": "https://registry.npmjs.org/figma-developer-mcp/0.13.2",
+      "entry": "dist/bin.js",
+      "environment": {
+        "FIGMA_API_KEY": "offline-placeholder"
+      },
+      "args": [
+        "--stdio"
+      ]
+    },
+    {
+      "family": "trello",
+      "cohort": "primary",
+      "package": "mcp-server-trello",
+      "version": "1.0.4",
+      "release": "https://registry.npmjs.org/mcp-server-trello/1.0.4",
+      "entry": "build/index.js",
+      "environment": {
+        "TRELLO_API_KEY": "offline-placeholder",
+        "TRELLO_TOKEN": "offline-placeholder"
+      },
+      "args": []
+    },
+    {
+      "family": "neon",
+      "cohort": "primary",
+      "package": "@neondatabase/mcp-server-neon",
+      "version": "0.6.5",
+      "release": "https://registry.npmjs.org/@neondatabase%2Fmcp-server-neon/0.6.5",
+      "entry": "dist/index.js",
+      "environment": {},
+      "args": [
+        "start",
+        "offline-placeholder"
+      ]
+    },
+    {
+      "family": "tableau",
+      "cohort": "primary",
+      "package": "@tableau/mcp-server",
+      "version": "6.0.4",
+      "release": "https://registry.npmjs.org/@tableau%2Fmcp-server/6.0.4",
+      "entry": "build/index.js",
+      "environment": {
+        "SERVER": "https://example.invalid",
+        "SITE_NAME": "metadata",
+        "PAT_NAME": "offline",
+        "PAT_VALUE": "offline-placeholder"
+      },
+      "args": []
+    },
+    {
+      "family": "contentful",
+      "cohort": "primary",
+      "package": "@contentful/mcp-server",
+      "version": "1.24.9",
+      "release": "https://registry.npmjs.org/@contentful%2Fmcp-server/1.24.9",
+      "entry": "dist/index.js",
+      "environment": {
+        "CONTENTFUL_MANAGEMENT_ACCESS_TOKEN": "offline-placeholder"
+      },
+      "args": []
+    },
+    {
+      "family": "obsidian",
+      "cohort": "primary",
+      "package": "@bitbonsai/mcpvault",
+      "version": "0.18.4",
+      "release": "https://registry.npmjs.org/@bitbonsai%2Fmcpvault/0.18.4",
+      "entry": "dist/server.js",
+      "environment": {},
+      "args": [
+        "/work"
+      ]
+    },
+    {
+      "family": "clarity",
+      "cohort": "primary",
+      "package": "@microsoft/clarity-mcp-server",
+      "version": "3.0.0",
+      "release": "https://registry.npmjs.org/@microsoft%2Fclarity-mcp-server/3.0.0",
+      "entry": "dist/cli.js",
+      "environment": {
+        "CLARITY_API_TOKEN": "offline-placeholder"
+      },
+      "args": []
+    }
+  ]
+}
