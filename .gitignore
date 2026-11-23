@@ -8,3 +8,8 @@ var/
 config.local.yaml
 # MCPTox raw data: no explicit upstream license, fetched by scripts/fetch_mcptox.sh, never committed
 data/raw/
+# Personal Review III laptop handoff
+/.review-runtime/
+/review-context/
+/review-assets-*.tar.gz
+/SHA256SUMS
