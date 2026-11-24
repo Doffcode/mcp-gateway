@@ -1,4 +1,13 @@
-# Facts
+# Facts ledger
 
-Every number used in the report, with its source.
-
+| Evidence | Values used in the report |
+|---|---|
+| Course and review brief, Report Kit user profile | CA649, Review III, November 2026 |
+| `data/split.json`, `eval/mcptox_ingest.py` | 1,348 source cases, 36 excluded, 1,312 valid; 45 servers, 353 authentic; 29/814/225 train, 16/498/128 held-out; seed 20261012; Other 4/0 |
+| `src/gateway/canonical.py`, `src/gateway/ladder.py`, `src/gateway/l4.py` | SHA-256 (256-bit digest), UTF-8; L1, L2, L3, L4; K=2; L4 disagreement and 0.05 threshold band |
+| `eval/run_mcptox.py`, `eval/report.py`, stored n=300 run | Qwen3 8B, temperature 0, context 16,384; 300 pairs, 131 reused; 1,000 resamples, 2.5th/97.5th percentiles, 95% interval; 59/300 = 19.7%, CI 15.3–24.3%; 37/300 = 12.3%, CI 8.7–16.3%; net 22, 7.3 pp, CI 3.3–11.3; paired transitions 31/9/28/232; 96 removed, 22 quarantined, 73 authentic removals only; residual 28 served and 9 removed; 39/600 length records, 8 reused |
+| `results/results.md` | Static 157/498 (31.5%); 3/128 (2.3%), 21/225 (9.3%), 24/353 (6.8%); 1/45 authentic quarantines; Commander 5 flags/19 tools; 22/161 (13.7%) hard negatives; 378/425 (88.9%), judge successes 101 both, 8 only local, 21 only MCPTox; 2,250 listings per latency condition, 1.10/8.24 ms first sight, 0.71/5.72 ms pinned; macro 21.7%/10.6% (10 categories) |
+| `results/results.md`, extended table by category | Code Injection 5/1/0 and 6/9; Credential Leakage 16/7/2 and 23/26; Data Tampering 20/3/1 and 15/33; Financial Loss 25/3/0 and 6/41; Information Manipulation 69/13/9 and 13/114; Infrastructure Damage 36/5/2 and 31/59; Instruction Tampering 16/4/6 and 6/27; Message Hijacking 7/2/0 and 6/12; Privacy Leakage 52/14/9 and 30/87; Service Disruption 54/7/8 and 21/90 |
+| `eval/train_l3.py`, `results/l3_screening.md`, `var/l3/results.json` | 5 folds, 5% cap, 3–5 character grams, E5; validation denominators 465/204, flags by candidate 465/0, 461/8, 465/0, 465/0, 444/10; threshold 0.5436877; results 497/498, 1/128, 340/341, 1/125; 99.8%; shortcuts 492/498, 8/128, 341/341, 8/125, and 493/498, 12/128, 337/341, 12/125; empty-schema subset 491/492, 0/8; other schemas 6/6 and 1/120; L3 latency 20 repetitions, 0.72/0.77 ms for 1, 3.48/3.62 ms for 12, load 25.4 ms |
+| `results/l3_external_utility.md`, `var/l3-external-r1/results.json` | 19/26 sources, 7 incomplete, 334 tools; 15/334, 56/334, 2/278 (0.7%), 7/19, 2/16; zero-param 1/14, 2/14, 2/12 (16.7%); optional 0/39, 7/39, 0/32; required 14/281, 47/281, 0/234; 52 of 56 across 3 quarantines; 4 overall flags; 0.798 and 0.590; eligibility minimum 50 across 3 groups |
+| `REVIEW-III.md`, `var/l3/weather-*.json`, `var/l4/*.json` | 2 advertised and 1 served; clean 0.132, altered 0.659, forecast 0.114; 4 illustrative L4 cases; first weather timings 1.29–1.65 s, next 7.09/1.22 s |

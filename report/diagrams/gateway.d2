@@ -1,0 +1,18 @@
+direction: down
+agent: Agent host and MCP client
+proxy: Inline MCP gateway {
+  style.fill: "#eff6ff"
+  direction: right
+  checks: "L1 pinning\nL2 capability check"
+  policy: "Decision ladder\nApproved tools"
+  checks -> policy
+}
+server: Untrusted MCP server
+lab: "Gateway Lab\nL3 screening · L4 review" {
+  style.fill: "#f0fdfa"
+}
+agent <-> proxy: Lists and tool calls
+proxy <-> server: MCP requests and results
+proxy -> lab: Captured metadata {
+  style.stroke-dash: 4
+}

@@ -14,5 +14,5 @@ fi
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-2}"
 export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-2}"
 export PYTHONDONTWRITEBYTECODE=1
-printf 'Open http://127.0.0.1:%s/lab. Choose only Weather and Filesystem, then Connect.\n' "${STUDIO_PORT:-8765}"
+printf 'Open http://127.0.0.1:%s/lab. For the walkthrough, select only Weather, then Connect servers.\n' "${STUDIO_PORT:-8765}"
 exec "$review_python" -m demo_ui.server

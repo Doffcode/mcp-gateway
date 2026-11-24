@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gateway Lab</title>
-  <link rel="stylesheet" href="/static/lab.css">
+  <link rel="stylesheet" href="/static/lab.css?v=review-chat-discovery">
 </head>
 <body>
   <header>
@@ -23,7 +23,7 @@
   <main id="tab-wire" class="tab on">
     <section class="panel setup">
       <h2>1 · Choose real servers</h2>
-      <label class="srv"><input type="checkbox" data-kind="weather" checked> <b>weather</b> <span class="tag fx">our fixture</span><small>get_weather is poisoned</small></label>
+      <label class="srv"><input type="checkbox" data-kind="weather" checked> <b>weather</b> <span class="tag fx">our fixture</span><small>Local fixture with altered get_weather metadata</small></label>
       <label class="srv"><input type="checkbox" data-kind="filesystem" checked> <b>filesystem</b> <span class="tag fx">our fixture</span><small>sandboxed read_file</small></label>
       <label class="srv"><input type="checkbox" data-kind="mcptox" checked> <b>MCPTox replay</b> <span class="tag mx">benchmark data</span>
         <select id="mx-server"></select><select id="mx-case"><option value="">no poisoned tool</option></select></label>
@@ -31,24 +31,28 @@
       <label class="srv"><input type="checkbox" data-kind="time" checked> <b>mcp-server-time</b> <span class="tag of">official, unmodified</span><small>uvx</small></label>
       <h2>2 · Gateway</h2>
       <div class="seg" id="gw-seg"><button data-v="1" class="on">In the path</button><button data-v="0">Bypassed</button></div>
-      <button id="connect" class="primary">Connect (spawn processes)</button>
+      <button id="connect" class="primary">Connect servers</button>
+      <p id="reconnect" class="small" role="status" hidden></p>
       <div id="procs" class="procs"></div>
     </section>
 
     <section class="panel tools">
       <h2>What the agent receives <span class="sub" id="tools-sub"></span></h2>
-      <div class="small">L4 is an optional local review. The decision column shows what the gateway enforced.</div>
+      <div id="wire-path" class="connection-path" aria-live="polite">Connect servers to see the active MCP path.</div>
       <div id="tooltable" class="tooltable"><div class="empty">Connect to see each server's real tools/list, before and after the gateway.</div></div>
-      <div class="callbox">
-        <select id="call-tool"></select>
-        <input id="call-args" value="{}" spellcheck="false">
-        <button id="call">Call tool</button>
-        <div id="call-out" class="mono small"></div>
-      </div>
+      <section id="call-panel" hidden>
+        <h3>Test a tool call</h3>
+        <div class="callbox">
+          <select id="call-tool" aria-label="Tool to test"></select>
+          <input id="call-args" aria-label="Tool arguments (JSON)" value="{}" spellcheck="false">
+          <button id="call">Call tool</button>
+          <div id="call-out" class="mono small" role="status"></div>
+        </div>
+      </section>
     </section>
 
     <section class="panel wire">
-      <h2>Wire: every JSON-RPC frame, both hops <span class="sub" id="wire-count"></span></h2>
+      <h2>MCP requests and responses <span class="sub" id="wire-count"></span></h2>
       <div id="wirelog" class="log"></div>
       <h2>Gateway log <span class="sub">var/…/gateway.log (JSON lines)</span></h2>
       <div id="gwlog" class="log short"></div>
@@ -104,15 +108,27 @@
   <!-- 4. AGENT CHAT --------------------------------------------------------------------------------- -->
   <main id="tab-chat" class="tab">
     <section class="panel wide">
-      <h2>Talk to the real agent over the servers connected in “Live wire” <span class="sub" id="chat-sub"></span></h2>
-      <div class="row"><input id="chat-q" value="What's the weather in Paris right now?"><button id="chat-send" class="primary">Send</button></div>
+      <h2>Talk to the agent</h2>
+      <div id="chat-path" class="connection-path" aria-live="polite">Connect servers in Live Wire to talk to the agent.</div>
+      <details id="chat-tools" class="chat-tools" hidden>
+        <summary id="chat-sub"></summary>
+        <div id="chat-tool-list" class="mono small"></div>
+      </details>
+      <div class="row chat-input"><input id="chat-q" aria-label="Message to the agent" value="Give me the five-day forecast for Paris."><button id="chat-send" class="primary" disabled>Send</button></div>
+      <div id="chat-status" class="small" role="status"></div>
       <div id="chat" class="chat"></div>
     </section>
     <section class="panel">
-      <h2>Frames caused by this conversation</h2>
-      <div id="wirelog2" class="log"></div>
+      <h2>MCP activity during the latest request</h2>
+      <h3>Tool calls</h3>
+      <div id="wirelog2" class="log chat-call-log"></div>
+      <p id="chat-no-calls" class="small">Tool calls will appear here when the agent uses a tool.</p>
+      <section id="chat-discovery" hidden>
+        <h3>Tool discovery</h3>
+        <div id="chat-listings"></div>
+      </section>
     </section>
   </main>
-  <script src="/static/lab.js"></script>
+  <script src="/static/lab.js?v=review-chat-discovery"></script>
 </body>
 </html>

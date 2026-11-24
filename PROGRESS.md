@@ -142,3 +142,17 @@ run 10x gateway OFF / 10x ON against poisoned weather + filesystem + canary, the
 - Verified live in Chrome. L4 flagged the altered weather metadata and rated the clean forecast low risk. L1+L2 still removed weather and served forecast. Local warm calls took 1.29–1.65 s in that walkthrough.
 - In a targeted spot check, L4 rated both authentic tools that L3 additionally flagged (Contentful and Clarity) low risk. These four cases illustrate behavior. They do not measure L4 accuracy, generalization, or attack-success reduction.
 - All 38 tests passed. Local screenshot and JSON are in `var/l4/`.
+
+## 2026-11-24 · Review III Lab clarity
+- Live Wire shows the active connection path, live listing counts, the actual gateway decision and reason, and distinct advisory findings. Agent Chat shows Qwen3's tool count and tool outcomes. The wire trace labels both hops and keeps raw JSON expandable.
+- Chrome verified the direct rejection of the removed local Weather tool, the real Qwen3 forecast call, bypass, explicit fixture errors, and recovery from a dropped chat stream. An isolated Lab instance verified listing and manual calls when Ollama was unreachable. All 38 tests passed.
+- Agent Chat now puts tool calls first and collapses discovery into one row per server with live offered and received counts. Chrome verified expandable discovery frames and the real Qwen3 forecast in path and bypass with Weather and Filesystem connected.
+
+## 2026-11-24 · CA649 Review III rough thesis
+- Built the editable Report Kit thesis, PDF and DOCX, and a separate one-page viva brief. Draft source is under `report/`; local outputs are under `report/out/`.
+- Checked the frozen threshold, paired counts and confidence interval, schema diagnostics, external capture provenance, and local review records. The saved run contains 28 residual successes with the poisoned tool served and nine judged successes after its removal; the draft preserves the 59/300 versus 37/300 headline and assigns the nine cases to follow-up adjudication.
+- The thesis PDF passed the draft checks. Report Kit reported two underfilled pages in the DOCX preview. Review III slides and the guide form are still open.
+
+## 2026-11-24 · CA649 Review III presentation
+- Built and inspected the editable 10-slide Review III PowerPoint and PDF preview in `slides/out/`. The native layout, revised brief and notes are in `slides/review-iii/`. Review II sources and outputs retain their separate paths.
+- Timed for 12 minutes, including six minutes across the three results slides and an 80-second Weather walkthrough, followed by three minutes for Q&A. Verified results against the recorded experiment artifacts and scoped the Phase II claims to planned tests.

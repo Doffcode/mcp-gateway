@@ -1,5 +1,9 @@
 # Abstract {.unnumbered}
 
-[[TODO: abstract]]
+Model Context Protocol (MCP) tools are described to language-model agents before the agents invoke them. A tool description or input schema can therefore influence a model before any tool code runs. This thesis evaluates an inline gateway that screens such metadata at discovery and enforces the resulting tool list at invocation. The enforced policy combines trust-on-first-use metadata pinning (L1) with a deterministic capability-consistency check and a decision ladder (L2). Two additional layers provide advisory findings. L3 is a learned text classifier, while L4 is an optional local model review.
 
-**Keywords:** [[TODO: keywords]]
+A paired replay of 300 held-out MCPTox cases with Qwen3 8B and thinking enabled reduced the rate of responses judged successful from 59/300 to 37/300. The paired reduction was 7.3 percentage points (95% bootstrap confidence interval, 3.3–11.3 points). Every benchmark listing was evaluated on first sight, so the measured comparison reflects L2 and the decision ladder. A separate local test demonstrates L1 detecting metadata changes after pinning. On 128 held-out authentic tools the baseline removed three, and measured gateway processing overhead alone was 8.24 ms at the 95th percentile on first sight.
+
+At the frozen threshold, L3 flagged 340/341 poisoned examples and 1/125 authentic tools that the baseline would serve on the held-out split. Most poisoned examples lacked reconstructed arguments. On a separate utility sample of 334 authentic tools from 19 unfamiliar server families, L3 added 2/278 flags among tools the baseline would serve. Both were among the 12 served zero-parameter tools. L4 produced structured opinions on four illustrative examples. Independent detection recall and any additional reduction in attack success from L3 or L4 remain open. The results show measurable protection at metadata admission and quantify a corresponding cost in tool availability.
+
+**Keywords** — Model Context Protocol, tool metadata, prompt injection, gateway, tool availability.

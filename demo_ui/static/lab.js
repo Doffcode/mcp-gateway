@@ -52,56 +52,115 @@ $("#mx-server").onchange = fillCases;
 
 // ---------- LIVE WIRE ----------
 let GW = true;
-$$("#gw-seg button").forEach((b) => (b.onclick = () => { GW = b.dataset.v === "1"; $$("#gw-seg button").forEach((x) => x.classList.toggle("on", x === b)); }));
 let CONNECTED = null;
 
-$("#connect").onclick = () => busy($("#connect"), "spawning processes…", async () => {
+function activeConnection(connection) {
+  CONNECTED = connection;
+  const servers = Object.values(connection?.servers || {});
+  const active = servers.length > 0;
+  const inPath = servers[0]?.gateway;
+  const route = inPath
+    ? '<span>MCP client</span> <span aria-hidden="true">→</span> <strong>Metadata Integrity Gateway</strong> <span aria-hidden="true">→</span> <span>MCP servers</span>'
+    : '<span>MCP client</span> <span aria-hidden="true">→</span> <span>MCP servers</span>';
+  const badge = inPath ? "Gateway in path" : "Gateway bypassed";
+  for (const id of ["#wire-path", "#chat-path"]) {
+    $(id).innerHTML = active
+      ? `${route} <span class="path-state ${inPath ? "in-path" : "bypassed"}">${badge}</span>`
+      : "Connect servers in Live Wire to see the active MCP path.";
+  }
+  $("#chat-send").disabled = !active;
+  $("#chat-tools").hidden = true;
+  $("#chat-tools").open = false;
+  $("#chat-status").textContent = "";
+  $("#chat").textContent = "";
+  clearChatActivity();
+  chatEnded = 0;
+  showReconnectHint();
+}
+
+function showReconnectHint() {
+  const server = Object.values(CONNECTED?.servers || {})[0];
+  const pending = server && server.gateway !== GW;
+  $("#reconnect").hidden = !pending;
+  $("#reconnect").textContent = pending ? "Reconnect to apply the selected gateway mode." : "";
+}
+
+$$("#gw-seg button").forEach((button) => {
+  button.onclick = () => {
+    GW = button.dataset.v === "1";
+    $$("#gw-seg button").forEach((item) => item.classList.toggle("on", item === button));
+    showReconnectHint();
+  };
+});
+
+$("#connect").onclick = () => busy($("#connect"), "Connecting…", async () => {
   const servers = $$(".srv input:checked").map((i) => {
     const kind = i.dataset.kind;
     return kind === "mcptox" ? { kind, opts: { server: $("#mx-server").value, case: $("#mx-case").value || null } } : { kind };
   });
+  $("#call-panel").hidden = true;
+  $("#tooltable").textContent = "Connecting to the selected servers…";
+  $("#tools-sub").textContent = "";
+  $("#call-out").textContent = "";
+  $("#procs").textContent = "";
+  activeConnection(null);
   const t0 = performance.now();
-  CONNECTED = await api("/api/lab/connect", { body: { servers, gateway: GW } });
-  $("#tools-sub").textContent = `${GW ? "gateway IN the path" : "gateway BYPASSED"} · connected in ${Math.round(performance.now() - t0)} ms`;
-  renderTools(CONNECTED);
+  try {
+    const connection = await api("/api/lab/connect", { body: { servers, gateway: GW } });
+    activeConnection(connection);
+    $("#tools-sub").textContent = servers.length ? `connected in ${Math.round(performance.now() - t0)} ms` : "";
+    renderTools(connection);
+  } catch (error) {
+    $("#tooltable").textContent = `Could not connect. ${error.message}`;
+  }
 });
 
 function lanes(t, gw, score) {
-  if (!gw) return `<span class="lane na">gateway bypassed</span>`;
+  if (!gw) return '<span class="small">Gateway bypassed</span>';
   const l2bad = t.flags.length > 0;
-  return `<span class="lane ok" title="${esc(t.hash)}">L1 ${t.hash.slice(0, 8)}</span>
-    <span class="lane ${l2bad ? "bad" : "ok"}" title="implied: ${esc(Object.keys(t.implied).join(", ") || "none")} · declared: ${esc(t.declared.join(", ") || "none")}">L2 ${l2bad ? "✗ " + t.flags.map((f) => f.category).join(",") : "✓"}</span>
-    ${l2bad ? `<div class="reason">${t.flags.map((f) => esc(f.reason)).join("<br>")}</div>` : ""}
-    ${score ? `<span class="lane ${score.verdict === "flagged" ? "bad" : "ok"}">L3 ${score.verdict === "flagged" ? "flagged" : "below threshold"} · ${score.score.toFixed(4)} / ${score.threshold.toFixed(7)}</span>` : '<span class="lane na">L3 unavailable</span>'}
-    ${t.l4 ? `<div class="l4-review"><button data-review-id="${esc(t.l4.id)}">Review with L4${t.l4.suggested ? " · suggested" : ""}</button>
-    <div class="reason" aria-live="polite"></div></div>` : ""}`;
+  return `<div class="layer-group">
+      <b>Gateway checks</b>
+      <span class="lane na" title="${esc(t.hash)}">L1 metadata fingerprint</span>
+      <span class="lane ${l2bad ? "bad" : "ok"}" title="implied: ${esc(Object.keys(t.implied).join(", ") || "none")} · declared: ${esc(t.declared.join(", ") || "none")}">L2 ${l2bad ? "capability mismatch" : "no mismatch found"}</span>
+      ${l2bad ? `<div class="reason">${t.flags.map((f) => esc(f.reason)).join("<br>")}</div>` : ""}
+    </div>
+    <div class="layer-group">
+      <b>Advisory findings</b>
+      ${score ? `<span class="lane ${score.verdict === "flagged" ? "bad" : "ok"}">L3 ${score.verdict === "flagged" ? "flagged" : "below threshold"}</span>
+        <div class="small">Score ${score.score.toFixed(4)} · threshold ${score.threshold.toFixed(7)}</div>` : '<span class="lane na">L3 unavailable</span>'}
+      ${t.l4 ? `<div class="l4-review"><button data-review-id="${esc(t.l4.id)}">Review with L4${t.l4.suggested ? " · suggested" : ""}</button>
+        <div class="small l4-result" aria-live="polite"></div></div>` : '<span class="lane na">L4 unavailable</span>'}
+    </div>`;
 }
+
 function renderTools(r) {
   const opts = [];
   $("#tooltable").innerHTML = Object.entries(r.servers).map(([name, s]) => {
     const served = new Set(s.served);
     const scores = new Map(s.l3.tools.map((row) => [row.tool, row]));
     s.served.forEach((t) => opts.push(`<option value="${esc(name)}::${esc(t)}">${esc(name)} · ${esc(t)}</option>`));
-    Object.keys(s.removed).forEach((t) => opts.push(`<option value="${esc(name)}::${esc(t)}">${esc(name)} · ${esc(t)} (removed: try it)</option>`));
-    return `<div class="srvblock"><div class="srvhead"><b>${esc(name)}</b>
-      <span class="small">server sent ${s.upstream.length} tools → agent got ${s.served.length}${s.l3.status === "screening" ? " · L3 screening only" : ""}</span>
+    Object.keys(s.removed).forEach((t) => opts.push(`<option value="${esc(name)}::${esc(t)}">${esc(name)} · ${esc(t)} (removed · test rejection)</option>`));
+    return `<div class="srvblock"><div class="srvhead"><b>${esc(name)}</b>${s.kind === "weather" ? '<span class="tag fx">local fixture</span>' : ""}
+      <span class="small">Offered ${s.upstream.length} · available to agent ${s.served.length} · removed ${s.upstream.length - s.served.length}</span>
       <span class="r">${s.check_ms != null ? `gateway check ${s.check_ms} ms · ` : ""}round trip ${s.roundtrip_ms} ms</span></div>
-      <table class="tt"><tr><th>tool (as the server sent it)</th><th>layers</th><th>decision</th></tr>
+      <table class="tt"><tr><th>Server tool</th><th>Screening</th><th>Decision</th></tr>
       ${s.upstream.map((t) => {
         const rm = !served.has(t.name);
         return `<tr class="new ${rm ? "rm" : ""}"><td class="name mono">${esc(t.name)}<div class="small">${esc(t.description.slice(0, 110))}${t.description.length > 110 ? "…" : ""}</div></td>
           <td>${lanes(t, s.gateway, scores.get(t.name))}</td>
-          <td>${rm ? `<b style="color:var(--bad)">removed</b><div class="reason">${esc(s.removed[t.name] || "")}</div>` : `<span style="color:var(--safe)">served</span>`}</td></tr>`;
+          <td>${rm ? `<b class="decision removed">Removed by gateway</b><div class="reason">${esc(s.removed[t.name] || "")}</div>` : `<b class="decision available">Available to agent</b>`}</td></tr>`;
       }).join("")}</table></div>`;
-  }).join("");
+  }).join("") || '<div class="empty">Select a server and connect to see its tools.</div>';
+  $("#call-panel").hidden = !opts.length;
   $("#call-tool").innerHTML = opts.join("");
+  $("#call-tool").onchange();
   $("#procs").innerHTML = r.procs.map((p) => `<div><b>pid ${p.proc.pid}</b> ${esc(p.hop)}<br>${esc(p.proc.cmd.slice(-4).join(" "))}</div>`).join("");
 }
 
 $("#tooltable").addEventListener("click", (event) => {
   const button = event.target.closest("[data-review-id]");
   if (!button) return;
-  const result = $(".reason", button.parentElement);
+  const result = $(".l4-result", button.parentElement);
   result.textContent = "";
   busy(button, "Reviewing…", async () => {
     try {
@@ -110,55 +169,132 @@ $("#tooltable").addEventListener("click", (event) => {
       const evidence = review.evidence_field && review.evidence_field !== "none" ? ` · ${review.evidence_field.replaceAll("_", " ")}` : "";
       result.textContent = `L4 ${verdict} · ${review.model}${evidence} · ${review.elapsed_ms} ms. ${review.reason}`;
     } catch (error) {
-      result.textContent = error.message;
+      result.textContent = `L4 review unavailable. ${error.message}`;
     }
   });
 });
 
-$("#call").onclick = () => busy($("#call"), "calling…", async () => {
+$("#call").onclick = () => busy($("#call"), "Calling…", async () => {
   const [server, tool] = $("#call-tool").value.split("::");
-  let args = {};
-  try { args = JSON.parse($("#call-args").value || "{}"); } catch { throw new Error("arguments must be JSON"); }
-  const r = await api("/api/lab/call", { body: { server, tool, args } });
-  $("#call-out").innerHTML = `<span style="color:${r.is_error ? "var(--bad)" : "var(--safe)"}">${r.is_error ? "ERROR" : "OK"}</span> ${esc(r.text)}`;
+  const output = $("#call-out");
+  output.textContent = `Requesting ${server}.${tool}…`;
+  $("#connect").disabled = true;
+  $("#chat-send").disabled = true;
+  try {
+    const args = JSON.parse($("#call-args").value || "{}");
+    const r = await api("/api/lab/call", { body: { server, tool, args } });
+    output.innerHTML = `<b class="decision ${r.is_error ? "removed" : "available"}">${r.is_error ? "Call returned an error" : "Tool returned a result"}</b> · ${esc(server)}.${esc(tool)}\n${esc(r.text)}`;
+  } catch (error) {
+    output.textContent = `Could not complete the call. ${error.message}`;
+  } finally {
+    $("#connect").disabled = false;
+    $("#chat-send").disabled = false;
+  }
 });
 $("#call-tool").onchange = () => {
   const t = $("#call-tool").value.split("::")[1];
-  $("#call-args").value = t === "get_weather" ? '{"city": "Paris"}' : t === "get_current_time" ? '{"timezone": "Asia/Kolkata"}' :
-    t === "git_status" || t === "git_log" ? '{"repo_path": "."}' : t === "read_file" ? '{"path": "canary.txt"}' : "{}";
+  const defaults = {
+    get_weather: { city: "Paris" },
+    get_forecast: { city: "Paris", days: 5 },
+    get_current_time: { timezone: "Asia/Kolkata" },
+    git_status: { repo_path: "." },
+    git_log: { repo_path: "." },
+    read_file: { path: "canary.txt" },
+  };
+  $("#call-args").value = JSON.stringify(defaults[t] || {});
 };
 
 // wire + gateway log stream (one SSE for the whole session)
 let NFR = 0;
-function frameLine(rec, target) {
-  const d = document.createElement("div");
-  if (rec.proc) {
-    d.className = "fr proc new";
-    d.innerHTML = `<span class="t">${clock(rec.ts)}</span><span>▶ spawned pid ${rec.proc.pid} on hop ${esc(rec.hop)}: ${esc(rec.proc.cmd.slice(-4).join(" "))}</span>`;
-  } else {
-    const m = rec.msg, kind = typeof m === "object" ? (m.method || (m.result ? "result" + (m.result.tools ? ` · ${m.result.tools.length} tools` : "") : m.error ? "error" : "")) : "text";
-    d.className = "fr new";
-    d.innerHTML = `<span class="t">${clock(rec.ts)}</span><span class="hop">${esc(rec.hop)}</span><span class="d ${rec.dir}">${rec.dir === "req" ? "→" : "←"}</span>
-      <span class="m">${esc(kind)}${m && m.id != null ? ` <span class="t">#${m.id}</span>` : ""}</span><span class="s">${rec.size} B</span>`;
-    d.onclick = () => { const p = d.querySelector("pre"); if (p) p.remove(); else d.insertAdjacentHTML("beforeend", `<pre class="json">${esc(JSON.stringify(m, null, 2))}</pre>`); };
+const pendingFrames = new Map();
+
+function frameDetails(rec) {
+  const message = rec.msg;
+  const key = JSON.stringify([rec.hop, message?.id]);
+  const request = rec.dir === "req";
+  let method = message?.method;
+  let tool = message?.params?.name;
+  if (request && method && message.id != null) {
+    pendingFrames.set(key, { method, tool });
+  } else if (!request && pendingFrames.has(key)) {
+    ({ method, tool } = pendingFrames.get(key));
+    pendingFrames.delete(key);
   }
-  target.appendChild(d);
+
+  let [from, to] = rec.hop.split("→");
+  const viaGateway = to.startsWith("gw[");
+  const server = viaGateway ? to.slice(3, -1) : to;
+  const upstream = from === "gw";
+  from = { agent: "MCP client", gw: "Gateway" }[from] || from;
+  if (viaGateway) to = `Gateway (${server})`;
+  const route = request ? `${from} → ${to}` : `${to} → ${from}`;
+  const detail = { route, method, server, viaGateway, upstream };
+  if (request) {
+    if (method === "tools/list") return { ...detail, action: "Request tool list" };
+    if (method === "tools/call") return { ...detail, action: `Call ${tool || "tool"}` };
+    return { ...detail, action: method || "Message" };
+  }
+  const name = tool ? ` · ${tool}` : "";
+  if (message?.error) return { ...detail, action: `Protocol error${name}`, error: true };
+  if (message?.result?.isError) return { ...detail, action: `Tool call returned an error${name}`, error: true };
+  if (Array.isArray(message?.result?.tools)) {
+    const count = message.result.tools.length;
+    return { ...detail, action: `Returned ${count} ${count === 1 ? "tool" : "tools"}` };
+  }
+  if (method === "tools/call") return { ...detail, action: `Tool result${name}` };
+  return { ...detail, action: method ? `Response · ${method}` : message?.method || "Message" };
+}
+
+function frameLine(rec, target, detail) {
+  if (rec.proc) {
+    const line = document.createElement("div");
+    line.className = "fr proc";
+    line.textContent = `${clock(rec.ts)} · Process started · ${rec.hop} · PID ${rec.proc.pid}`;
+    target.appendChild(line);
+  } else {
+    const line = document.createElement("details");
+    line.className = "fr";
+    const id = rec.msg?.id;
+    line.innerHTML = `<summary>
+      <time class="t">${clock(rec.ts)}</time>
+      <span class="hop">${esc(detail.route)}</span>
+      <span class="m ${detail.error ? "frame-error" : ""}">${esc(detail.action)}</span>
+      <span class="frame-id" title="JSON-RPC request ID">${id == null ? "—" : `#${esc(id)}`}</span>
+      <span class="s" title="Message size">${rec.size} B</span>
+    </summary><pre class="json">${esc(JSON.stringify(rec.msg, null, 2))}</pre>`;
+    target.appendChild(line);
+  }
   target.scrollTop = target.scrollHeight;
 }
+
 const es = new EventSource("/api/lab/stream");
 es.onmessage = (e) => {
   const ev = JSON.parse(e.data);
-  if (ev.src === "reset") { $("#wirelog").innerHTML = ""; $("#gwlog").innerHTML = ""; NFR = 0; return; }
+  if (ev.src === "reset") {
+    for (const id of ["#wirelog", "#gwlog"]) $(id).textContent = "";
+    clearChatActivity();
+    $("#wire-count").textContent = "";
+    pendingFrames.clear();
+    NFR = 0;
+    return;
+  }
   if (ev.src === "wire") {
-    frameLine(ev.rec, $("#wirelog"));
-    if (CHAT_ON) frameLine(ev.rec, $("#wirelog2"));
-    if (!ev.rec.proc) $("#wire-count").textContent = `${++NFR} frames`;
+    const detail = ev.rec.proc ? null : frameDetails(ev.rec);
+    frameLine(ev.rec, $("#wirelog"), detail);
+    if (detail && ev.rec.ts >= chatStarted && ev.rec.ts <= chatEnded) chatFrame(ev.rec, detail);
+    if (detail) $("#wire-count").textContent = `${++NFR} frames`;
   } else {
     const r = ev.rec, g = document.createElement("div");
-    g.className = "gl " + (r.event === "removed" ? "rm" : r.event === "quarantine" ? "q" : "");
+    const blocked = r.event === "call_blocked";
+    const location = [r.server, r.tool].filter(Boolean).join(".");
+    const description = r.reason || (r.hash ? r.hash.slice(0, 16) + "…" : "") ||
+      (r.check_ms != null ? `check ${r.check_ms} ms · available ${(r.served || []).length}, removed ${(r.removed || []).length}` : "");
+    g.className = "gl " + (blocked || r.event === "removed" ? "rm" : r.event === "quarantine" ? "q" : "");
     g.title = JSON.stringify(r);
-    g.innerHTML = `<span class="e">${esc(r.event)}</span> ${esc(r.server || "")}/${esc(r.tool || "")} ${esc(r.reason || (r.hash ? r.hash.slice(0, 16) + "…" : "") || (r.check_ms != null ? `check ${r.check_ms} ms · served ${(r.served || []).length}, removed ${(r.removed || []).length}` : ""))}`;
-    $("#gwlog").appendChild(g); $("#gwlog").scrollTop = 1e9;
+    g.innerHTML = `<span class="e">${blocked ? "Gateway rejected this call before forwarding" : esc(r.event)}</span>
+      ${esc(location)} ${esc(description)}`;
+    $("#gwlog").appendChild(g);
+    $("#gwlog").scrollTop = $("#gwlog").scrollHeight;
   }
 };
 
@@ -290,23 +426,99 @@ $("#asr-more").onclick = () => busy($("#asr-more"), "running live…", async () 
 });
 
 // ---------- AGENT CHAT ----------
-let CHAT_ON = false;
+let chatStarted = Infinity;
+let chatEnded = 0;
+const chatListings = new Map();
+
+function clearChatActivity() {
+  chatListings.clear();
+  $("#wirelog2").textContent = "";
+  $("#chat-listings").textContent = "";
+  $("#chat-discovery").hidden = true;
+  $("#chat-no-calls").hidden = false;
+}
+
+function chatFrame(rec, detail) {
+  if (detail.method === "tools/call") {
+    $("#chat-no-calls").hidden = true;
+    frameLine(rec, $("#wirelog2"), detail);
+    return;
+  }
+  if (detail.method !== "tools/list") return;
+
+  let listing = chatListings.get(detail.server);
+  if (!listing) {
+    const group = document.createElement("details");
+    group.className = "chat-listing";
+    group.innerHTML = '<summary></summary><div class="listing-frames"></div>';
+    $("#chat-listings").appendChild(group);
+    $("#chat-discovery").hidden = false;
+    listing = { summary: $("summary", group), frames: $(".listing-frames", group) };
+    chatListings.set(detail.server, listing);
+  }
+
+  const tools = rec.msg?.result?.tools;
+  if (Array.isArray(tools)) {
+    if (!detail.viaGateway) listing.offered = tools.length;
+    if (!detail.upstream) listing.received = tools.length;
+  } else if (detail.error) {
+    listing.error = true;
+  }
+
+  const { offered, received, error } = listing;
+  const counts = [
+    offered == null ? "" : `offered ${offered}`,
+    received == null ? "" : `agent received ${received}`,
+    error ? "listing error" : "",
+  ].filter(Boolean);
+  listing.summary.textContent = `${detail.server} · ${counts.join(" · ") || "requesting tool list…"}`;
+  frameLine(rec, listing.frames, detail);
+}
+
 $("#chat-send").onclick = () => {
-  if (!CONNECTED) { alert("Connect servers in the Live wire tab first."); return; }
-  const q = $("#chat-q").value, box = $("#chat"), btn = $("#chat-send");
-  btn.disabled = true; CHAT_ON = true; $("#wirelog2").innerHTML = "";
+  const q = $("#chat-q").value.trim();
+  if (!CONNECTED || !q) return;
+  const box = $("#chat");
+  const status = $("#chat-status");
+  $("#chat-send").disabled = true;
+  $("#connect").disabled = true;
+  $("#call").disabled = true;
+  chatStarted = Date.now() / 1000;
+  chatEnded = Infinity;
+  clearChatActivity();
+  $("#chat-tools").hidden = true;
+  status.textContent = "Waiting for the agent…";
   box.insertAdjacentHTML("beforeend", `<div class="msg user"><b>You:</b> ${esc(q)}</div>`);
   const s = new EventSource(`/api/lab/chat?q=${encodeURIComponent(q)}&seed=${Math.floor(Math.random() * 1000)}`);
   const canary = (t) => esc(t).replace(/(CANARY-[\w-]+)/g, '<span class="canary">$1</span>');
+  function finish(message) {
+    s.close();
+    chatEnded = Date.now() / 1000;
+    $("#chat-send").disabled = false;
+    $("#connect").disabled = false;
+    $("#call").disabled = false;
+    status.textContent = message;
+  }
+  s.onerror = () => finish("The agent connection dropped. You can send the request again.");
   s.onmessage = (e) => {
     const ev = JSON.parse(e.data);
-    if (ev.kind === "tools") $("#chat-sub").textContent = `${ev.model} sees ${ev.served.length} tools: ${ev.served.join(", ")}`;
-    else if (ev.kind === "tool_call") box.insertAdjacentHTML("beforeend", `<div class="msg call">→ ${esc(ev.server)}.${esc(ev.tool)}(${canary(JSON.stringify(ev.args))})</div>`);
-    else if (ev.kind === "tool_result") box.insertAdjacentHTML("beforeend", `<div class="msg res">← ${canary(ev.text)}</div>`);
-    else if (ev.kind === "assistant") box.insertAdjacentHTML("beforeend", `<div class="msg ans"><b>Agent:</b> ${esc(ev.text)}</div>`);
-    else if (ev.kind === "error") box.insertAdjacentHTML("beforeend", `<div class="msg err">${esc(ev.text)}</div>`);
-    else if (ev.kind === "done") { s.close(); btn.disabled = false; setTimeout(() => (CHAT_ON = false), 1500); }
-    box.parentElement.scrollTop = 1e9;
+    if (ev.kind === "tools") {
+      $("#chat-sub").textContent = `${ev.model} received ${ev.served.length} ${ev.served.length === 1 ? "tool" : "tools"}`;
+      $("#chat-tool-list").textContent = ev.served.join(", ");
+      $("#chat-tools").hidden = false;
+    } else if (ev.kind === "tool_call") {
+      const tool = ev.server ? `${ev.server}.${ev.tool}` : ev.tool;
+      box.insertAdjacentHTML("beforeend", `<div class="msg call"><b>Agent requested</b> ${esc(tool)}(${canary(JSON.stringify(ev.args))})</div>`);
+    } else if (ev.kind === "tool_result") {
+      box.insertAdjacentHTML("beforeend", `<div class="msg ${ev.is_error ? "err" : "res"}"><b>${ev.is_error ? "Tool error" : "Tool returned"}</b> ${canary(ev.text)}</div>`);
+    } else if (ev.kind === "assistant") {
+      box.insertAdjacentHTML("beforeend", `<div class="msg ans"><b>Agent:</b> ${esc(ev.text)}</div>`);
+    } else if (ev.kind === "error") {
+      box.insertAdjacentHTML("beforeend", `<div class="msg err"><b>Agent request failed.</b> ${esc(ev.text)}</div>`);
+      finish("The agent request failed. You can try again.");
+    } else if (ev.kind === "done") {
+      finish("Request complete");
+    }
   };
 };
 

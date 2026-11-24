@@ -212,8 +212,10 @@ async def chat(lab: LabSession, prompt: str, seed: int = 0):
             if name in owner:
                 res = await lab.call(owner[name], name, args)
                 text = res["text"]
+                is_error = res["is_error"]
             else:
                 text = f"error: unknown tool {name}"
-            yield {"kind": "tool_result", "tool": name, "text": text[:1200]}
+                is_error = True
+            yield {"kind": "tool_result", "tool": name, "text": text[:1200], "is_error": is_error}
             messages.append({"role": "tool", "content": text, "tool_name": name})
     yield {"kind": "assistant", "text": "(stopped after 6 rounds)"}

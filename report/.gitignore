@@ -6,3 +6,6 @@ _build/
 figures/.*.done
 refs/typst.bib
 refs/*.csl
+/out/
+/figures/gateway.svg
+/figures/gateway.png
